@@ -9,7 +9,7 @@
     "url": "https://www.post2all.com"
   },
   "homepage": "https://www.post2all.com/docs/mcp-server",
-  "repository": "https://github.com/zexahq/post2all-sdk",
+  "repository": "https://github.com/zexahq/post2all-agent",
   "license": "MIT",
   "keywords": ["post2all", "mcp", "social-media", "publishing", "scheduler"],
   "defaultEnabled": false,
