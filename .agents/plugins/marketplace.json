@@ -1,0 +1,20 @@
+{
+  "name": "post2all-agent",
+  "interface": {
+    "displayName": "Post2All Agent"
+  },
+  "plugins": [
+    {
+      "name": "post2all",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

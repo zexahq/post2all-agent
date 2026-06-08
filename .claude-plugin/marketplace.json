@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-marketplace.json",
+  "name": "post2all-plugins",
+  "owner": {
+    "name": "post2all",
+    "email": "support@post2all.com"
+  },
+  "description": "Official agent plugins for Post2All.",
+  "plugins": [
+    {
+      "name": "post2all",
+      "source": "./",
+      "description": "Use Post2All MCP tools from agent clients to manage social posts.",
+      "version": "0.1.0",
+      "author": {
+        "name": "post2all"
+      }
+    }
+  ]
+}

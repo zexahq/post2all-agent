@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "post2all",
+  "displayName": "Post2All",
+  "version": "0.1.0",
+  "description": "Connect Claude Code to Post2All through the shared Post2All agent plugin for listing accounts and creating, scheduling, updating, or managing social posts through MCP.",
+  "author": {
+    "name": "post2all",
+    "url": "https://www.post2all.com"
+  },
+  "homepage": "https://www.post2all.com/docs/mcp-server",
+  "repository": "https://github.com/zexahq/post2all-sdk",
+  "license": "MIT",
+  "keywords": ["post2all", "mcp", "social-media", "publishing", "scheduler"],
+  "defaultEnabled": false,
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json"
+}
