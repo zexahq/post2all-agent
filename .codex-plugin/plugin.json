@@ -1,7 +1,7 @@
 {
   "name": "post2all",
   "version": "0.1.0",
-  "description": "Connect Codex to Post2All for listing accounts and creating, scheduling, updating, or managing social posts through MCP.",
+  "description": "Connect Codex to Post2All for previewing, creating, scheduling, updating, and managing social posts through MCP.",
   "author": {
     "name": "post2all",
     "url": "https://www.post2all.com"
@@ -21,7 +21,7 @@
   "interface": {
     "displayName": "Post2All",
     "shortDescription": "Manage social posts through Post2All MCP.",
-    "longDescription": "Post2All connects Codex to the hosted Post2All MCP server so agents can list connected social accounts and create, schedule, update, cancel, or delete social posts through OAuth.",
+    "longDescription": "Post2All connects Codex to the hosted Post2All MCP server so agents can list connected social accounts, prepare a preview, and then create, schedule, update, cancel, or delete social posts through OAuth.",
     "developerName": "post2all",
     "category": "Productivity",
     "capabilities": [
@@ -32,7 +32,8 @@
     "websiteURL": "https://www.post2all.com",
     "defaultPrompt": [
       "List my connected Post2All accounts.",
-      "Draft a social post in Post2All.",
+      "Preview a social post in Post2All before creating it.",
+      "Draft a post with a shorter Threads caption using platformSettings.",
       "Show my scheduled Post2All posts."
     ],
     "brandColor": "#111827"

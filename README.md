@@ -13,9 +13,11 @@ https://www.post2all.com/api/mcp
 - List connected social accounts across supported platforms.
 - Inspect existing draft, scheduled, published, or failed posts.
 - Create new text, image, or video posts.
+- Preview drafted posts before creating them when the client supports Post2All preview UI.
 - Save posts as drafts, schedule them for later, or publish immediately.
 - Update draft or scheduled posts before they go live.
 - Cancel scheduled posts or delete posts when needed.
+- Use platform-specific captions and settings for channels with different limits, such as a shorter Threads caption.
 
 Actual capabilities depend on your Post2All workspace, connected accounts, plan limits, and account permissions.
 
@@ -77,10 +79,24 @@ Once connected, try prompts like:
 - "List my connected Post2All accounts."
 - "Create a draft LinkedIn post from this changelog."
 - "Schedule this announcement for tomorrow at 9 AM."
+- "Preview this post for Twitter and Threads, but use a shorter Threads caption."
 - "Show my scheduled posts for this week."
 - "Cancel the scheduled post about the launch update."
 
-For platform-specific publishing, ask the agent to list accounts first so you can confirm the correct target account.
+For platform-specific publishing, ask the agent to list accounts first so you can confirm the correct target account. Post2All settings are platform-specific, not account-specific. Agents should use `platformSettings`, for example:
+
+```json
+{
+  "threads": {
+    "caption": "Short Threads version"
+  },
+  "youtube": {
+    "title": "Video title"
+  }
+}
+```
+
+Scheduled times must include a timezone when tools are called, such as `2026-06-20T09:00:00+05:30`.
 
 ## Authentication And Permissions
 
