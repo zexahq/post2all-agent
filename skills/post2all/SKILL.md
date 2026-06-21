@@ -109,14 +109,19 @@ post2all post create \
 
 ### Media
 
-The CLI uploads local files automatically. Pass one or more paths directly; do not perform a separate upload step.
+Upload every local file before creating a post. Post creation accepts media IDs only.
+
+```bash
+post2all media upload ./photo1.jpg ./photo2.png --json
+post2all post create --type image --accounts acc_1 --media-ids <mediaId1>,<mediaId2> --status draft --json
+```
 
 ```bash
 post2all post create \
   --type image \
   --accounts acc_1 \
   --content "Photo gallery" \
-  --media ./photo1.jpg ./photo2.png \
+  --media-ids <mediaId1>,<mediaId2> \
   --status draft \
   --json
 ```
