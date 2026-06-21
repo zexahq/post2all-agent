@@ -142,7 +142,7 @@ post2all post create \
   --json
 ```
 
-Settings are keyed by platform, not account ID. Do not invent platform fields. Keep captions within platform limits; use an override when the main caption is too long for one target.
+Settings are keyed by platform, not account ID. Do not invent platform fields. Do not shorten every platform to the lowest character limit. Keep the main caption appropriate for platforms that support it, and add a shorter `caption` override only for constrained platforms such as X or Threads.
 
 ## Manage Posts
 
