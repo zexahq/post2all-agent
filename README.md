@@ -1,6 +1,6 @@
 # Post2All Agent Plugin
 
-Post2All Agent Plugin connects AI coding assistants to your Post2All workspace through the Model Context Protocol (MCP). Once connected, supported clients can list your connected social accounts and help create, schedule, update, cancel, or delete social posts without leaving your editor or agent session.
+Post2All Agent Plugin teaches AI coding assistants to use the Post2All CLI to list connected social accounts and create, schedule, update, cancel, or delete social posts. It also includes the hosted Model Context Protocol (MCP) connection for clients that support it.
 
 The plugin uses the hosted Post2All MCP server:
 
@@ -57,10 +57,11 @@ After installation, enable the plugin if prompted. When Claude Code first connec
 
 This repository includes a Codex plugin manifest at `.codex-plugin/plugin.json` and a shared MCP config at `.mcp.json`.
 
-If your Codex environment supports installing plugins from public repositories, install this repository as the Post2All plugin source:
+Add this repository as a Codex marketplace, then install the plugin:
 
-```text
-https://github.com/zexahq/post2all-agent
+```bash
+codex plugin marketplace add https://github.com/zexahq/post2all-agent
+codex plugin add post2all@post2all-agent
 ```
 
 If you configure MCP manually, add the Post2All MCP server URL to your Codex MCP configuration:

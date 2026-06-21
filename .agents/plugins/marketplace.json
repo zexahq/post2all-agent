@@ -8,7 +8,7 @@
       "name": "post2all",
       "source": {
         "source": "local",
-        "path": "./"
+        "path": "./plugins/post2all"
       },
       "policy": {
         "installation": "AVAILABLE",
