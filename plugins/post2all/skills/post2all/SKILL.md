@@ -123,21 +123,21 @@ post2all post create \
 
 Use `--type video` for video posts. Confirm files exist before executing. Supported image formats are jpg, jpeg, png, gif, webp, and svg; supported video formats are mp4, webm, mov, avi, and mkv.
 
-### Platform-Specific Settings
+### Account-Specific Settings
 
-Use `--platform-settings` for platform-specific captions or fields. Quote JSON with single quotes in shells that support it:
+Use `--account-settings` for account-specific captions or fields. Quote JSON with single quotes in shells that support it:
 
 ```bash
 post2all post create \
   --type text \
   --accounts acc_twitter,acc_threads \
   --content "Main caption" \
-  --platform-settings '{"threads":{"caption":"Short Threads caption"}}' \
+  --account-settings '{"acc_threads":{"caption":"Short Threads caption"}}' \
   --status draft \
   --json
 ```
 
-Settings are keyed by platform, not account ID. Do not invent platform fields. Keep captions within platform limits; use an override when the main caption is too long for one target.
+Settings are keyed by social account ID, not platform. Do not invent account setting fields. Keep captions within account limits; use an override when the main caption is too long for one target account.
 
 ## Manage Posts
 

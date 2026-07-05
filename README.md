@@ -17,7 +17,7 @@ https://www.post2all.com/api/mcp
 - Save posts as drafts, schedule them for later, or publish immediately.
 - Update draft or scheduled posts before they go live.
 - Cancel scheduled posts or delete posts when needed.
-- Use platform-specific captions and settings for channels with different limits, such as a shorter Threads caption.
+- Use account-specific captions and settings for connected accounts with different limits, such as a shorter caption for one Threads account.
 
 Actual capabilities depend on your Post2All workspace, connected accounts, plan limits, and account permissions.
 
@@ -84,14 +84,14 @@ Once connected, try prompts like:
 - "Show my scheduled posts for this week."
 - "Cancel the scheduled post about the launch update."
 
-For platform-specific publishing, ask the agent to list accounts first so you can confirm the correct target account. Post2All settings are platform-specific, not account-specific. Agents should use `platformSettings`, for example:
+For account-specific publishing, ask the agent to list accounts first so you can confirm the correct target account IDs. Post2All settings are account-specific and keyed by social account ID. Agents should use `accountSettings`, for example:
 
 ```json
 {
-  "threads": {
+  "acc_threads_1": {
     "caption": "Short Threads version"
   },
-  "youtube": {
+  "acc_youtube_1": {
     "title": "Video title"
   }
 }
