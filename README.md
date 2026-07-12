@@ -1,129 +1,184 @@
 # Post2All Agent Plugin
 
-Post2All Agent Plugin teaches AI coding assistants to use the Post2All CLI to list connected social accounts and create, schedule, update, cancel, or delete social posts. It also includes the hosted Model Context Protocol (MCP) connection for clients that support it.
-
-The plugin uses the hosted Post2All MCP server:
+Post2All Agent Plugin teaches AI coding assistants to create, schedule, inspect, update, cancel, and delete social posts through Post2All. It includes shared agent guidance plus the hosted Model Context Protocol connection for supported clients.
 
 ```text
-https://www.post2all.com/api/mcp
+https://mcp.post2all.com/api/mcp
 ```
 
-## What You Can Do
+## Capabilities
 
-- List connected social accounts across supported platforms.
-- Inspect existing draft, scheduled, published, or failed posts.
-- Create new text, image, or video posts.
-- Preview drafted posts before creating them when the client supports Post2All preview UI.
-- Save posts as drafts, schedule them for later, or publish immediately.
-- Update draft or scheduled posts before they go live.
-- Cancel scheduled posts or delete posts when needed.
-- Use account-specific captions and settings for connected accounts with different limits, such as a shorter caption for one Threads account.
+- List connected social accounts and supported post types.
+- Inspect draft, scheduled, publishing, published, partially failed, and failed posts.
+- Create text, image, and video posts.
+- Save drafts, schedule future delivery, or publish immediately.
+- Apply settings independently to every destination account.
+- Discover dynamic publishing options such as Discord channels and TikTok privacy choices.
+- Update or cancel draft and scheduled posts.
+- Delete posts when explicitly requested.
 
-Actual capabilities depend on your Post2All workspace, connected accounts, plan limits, and account permissions.
+Actual capabilities depend on the connected accounts, platform restrictions, workspace permissions, and Post2All plan.
 
-## Supported Clients
+## Supported clients
 
-This repository includes plugin metadata and shared guidance for:
+This repository includes metadata and shared guidance for:
 
 - Claude Code
 - OpenAI Codex
-- Any MCP-compatible client that can connect to a remote HTTP MCP server
+- MCP-compatible clients that support a remote HTTP MCP server
+- Coding agents with shell access to the `@post2all/cli` package
 
-The shared MCP configuration lives in `.mcp.json`, and the shared agent guidance lives in `skills/post2all/SKILL.md`.
+The shared MCP configuration lives in `.mcp.json`. Agent guidance is maintained in `skills/post2all/SKILL.md` and mirrored into the packaged plugin directory.
 
-## Before You Start
+## Before you start
 
-Make sure you have:
+You need:
 
 - A Post2All account and workspace.
-- At least one connected social account in Post2All.
-- A supported MCP client such as Claude Code or Codex.
-- A browser available for the OAuth sign-in and consent flow.
+- At least one connected social account for publishing.
+- A supported MCP client or the Post2All CLI.
+- A browser for the MCP OAuth consent flow.
 
-Post2All MCP access is OAuth-based. API keys are not used for this plugin.
+The hosted MCP server uses OAuth 2.1. The CLI uses a Post2All API key configured locally; agents should never ask users to paste API keys into chat.
 
-## Claude Code Setup
-
-Add this repository as a Claude Code plugin marketplace:
+## Claude Code setup
 
 ```bash
 claude plugin marketplace add https://github.com/zexahq/post2all-agent
 claude plugin install post2all@post2all-plugins
 ```
 
-After installation, enable the plugin if prompted. When Claude Code first connects to Post2All, complete the browser-based OAuth flow and grant access to your active workspace.
+Complete the browser OAuth flow when Claude first connects to Post2All.
 
-## Codex Setup
-
-This repository includes a Codex plugin manifest at `.codex-plugin/plugin.json` and a shared MCP config at `.mcp.json`.
-
-Add this repository as a Codex marketplace, then install the plugin:
+## Codex setup
 
 ```bash
 codex plugin marketplace add https://github.com/zexahq/post2all-agent
 codex plugin add post2all@post2all-agent
 ```
 
-If you configure MCP manually, add the Post2All MCP server URL to your Codex MCP configuration:
+Manual MCP configuration:
 
 ```toml
 [mcp_servers.post2all]
-url = "https://www.post2all.com/api/mcp"
+url = "https://mcp.post2all.com/api/mcp"
 ```
 
-When Codex connects, complete the OAuth flow in your browser and select the Post2All workspace you want the agent to use.
+Complete the browser sign-in flow and authorize the Post2All workspace you want the agent to use.
 
-## Example Workflows
+## Target and delivery model
 
-Once connected, try prompts like:
-
-- "List my connected Post2All accounts."
-- "Create a draft LinkedIn post from this changelog."
-- "Schedule this announcement for tomorrow at 9 AM."
-- "Preview this post for Twitter and Threads, but use a shorter Threads caption."
-- "Show my scheduled posts for this week."
-- "Cancel the scheduled post about the launch update."
-
-For account-specific publishing, ask the agent to list accounts first so you can confirm the correct target account IDs. Post2All settings are account-specific and keyed by social account ID. Agents should use `accountSettings`, for example:
+Every destination is represented by a target containing its platform discriminator, social account ID, and settings:
 
 ```json
 {
-  "acc_threads_1": {
-    "caption": "Short Threads version"
-  },
-  "acc_youtube_1": {
-    "title": "Video title"
+  "targets": [
+    {
+      "platform": "discord",
+      "accountId": "acc_discord_123",
+      "settings": {
+        "channelId": "1234567890",
+        "autoCrosspost": true
+      }
+    },
+    {
+      "platform": "threads",
+      "accountId": "acc_threads_123",
+      "settings": {
+        "caption": "A shorter Threads version",
+        "topicTag": "buildinpublic"
+      }
+    }
+  ],
+  "delivery": {
+    "mode": "scheduled",
+    "scheduledAt": "2026-07-20T09:00:00+05:30"
   }
 }
 ```
 
-Scheduled times must include a timezone when tools are called, such as `2026-06-20T09:00:00+05:30`.
+The `platform` value selects the exact settings schema. Invalid cross-platform fields are rejected. Multiple accounts on the same platform are separate targets.
 
-## Authentication And Permissions
+Delivery modes are:
 
-The MCP server uses OAuth 2.1. Your agent client will open a browser sign-in flow the first time it needs access.
+- `draft`: save without publishing; targets and incomplete settings may be omitted.
+- `now`: publish immediately.
+- `scheduled`: publish at a timezone-aware ISO 8601 timestamp.
 
-- Access is scoped to the Post2All workspace you authorize.
-- The agent can only act through the permissions granted to your Post2All account.
-- Long-lived sessions depend on whether your MCP client requests refresh-token-capable scopes such as `offline_access`.
-- You can revoke access from your Post2All account settings when you no longer want a client to connect.
+## CLI examples
 
-## Safety Notes
+```bash
+post2all config whoami --json
+post2all accounts --json
+post2all account publishing-options acc_discord_123 --json
+```
 
-MCP clients can take actions in connected tools using your account permissions. Review high-impact or time-sensitive actions before confirming them, especially publish-now requests, scheduled campaigns, and deletes.
+Create a draft:
 
-For safer workflows, prefer drafts or scheduled posts unless you explicitly want to publish immediately.
+```bash
+post2all post create \
+  --type text \
+  --content "Work in progress" \
+  --delivery draft \
+  --json
+```
+
+Publish immediately:
+
+```bash
+post2all post create \
+  --type text \
+  --content "New release shipping today 🚀" \
+  --targets '[{"platform":"linkedin","accountId":"acc_linkedin_123","settings":{}}]' \
+  --delivery now \
+  --json
+```
+
+Schedule:
+
+```bash
+post2all post create \
+  --type text \
+  --content "Scheduled update" \
+  --targets '[{"platform":"linkedin","accountId":"acc_linkedin_123","settings":{}}]' \
+  --delivery scheduled \
+  --scheduled-at "2026-07-20T09:00:00+05:30" \
+  --json
+```
+
+## Example prompts
+
+- “List my connected Post2All accounts.”
+- “Show the available Discord channels for this account.”
+- “Create a draft LinkedIn post from this changelog.”
+- “Schedule this announcement for tomorrow at 9 AM IST.”
+- “Publish to LinkedIn and Threads, but use shorter copy on Threads.”
+- “Show my scheduled posts for this week.”
+- “Cancel the scheduled launch post.”
+
+## Authentication and permissions
+
+- MCP access is scoped to the workspace authorized through OAuth.
+- The agent can only perform actions allowed by the user's Post2All account and plan.
+- Long-lived MCP sessions depend on refresh-token-capable scopes requested by the client.
+- Access can be revoked from Post2All account settings.
+
+## Safety
+
+Review immediate publishing, time-sensitive schedules, and destructive deletes before confirming them. Prefer drafts for review workflows. Fetch a post before deleting it unless the user already clearly identified it and requested deletion.
 
 ## Troubleshooting
 
-- If tools are unavailable, confirm the plugin or MCP server is enabled in your client.
-- If authorization fails, repeat the browser sign-in flow and ensure an active Post2All workspace is selected.
-- If no accounts appear, connect social accounts in Post2All first.
-- If publishing fails, check account permissions, media requirements, platform limits, and your Post2All plan limits.
+- Confirm the plugin or MCP server is enabled when tools are missing.
+- Repeat OAuth sign-in when authorization fails.
+- List accounts again when an account ID or platform is rejected.
+- Load account publishing options when a required dynamic setting is missing.
+- Check media type, size, target platform support, and required settings when publishing fails.
 
 ## Links
 
 - Post2All: https://www.post2all.com
-- MCP setup docs: https://www.post2all.com/docs/mcp-server
+- MCP setup: https://www.post2all.com/docs/mcp-server
+- REST API: https://www.post2all.com/docs/api-reference
 - Repository: https://github.com/zexahq/post2all-agent
 - Issues: https://github.com/zexahq/post2all-agent/issues

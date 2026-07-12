@@ -2,7 +2,7 @@
   "mcpServers": {
     "post2all": {
       "type": "http",
-      "url": "https://www.post2all.com/api/mcp"
+      "url": "https://mcp.post2all.com/api/mcp"
     }
   }
 }

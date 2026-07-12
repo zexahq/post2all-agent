@@ -1,98 +1,106 @@
 ---
 name: post2all
-description: Use the Post2All CLI to create, schedule, inspect, update, cancel, and delete social media posts across connected accounts.
+description: Use Post2All to create, schedule, inspect, update, cancel, and delete social posts across connected accounts.
 ---
 
-# Post2All CLI
+# Post2All
 
-Use the `post2all` command-line interface to manage a user's Post2All workspace. Run commands on the user's behalf when they ask to create, schedule, or manage social posts.
+Use the `post2all` CLI when shell access is available, or the connected Post2All MCP tools when the client exposes them. Both interfaces use the same target and delivery model.
 
-## Install And Authenticate
+## Install and authenticate the CLI
 
-Check whether the CLI is available:
+Check availability:
 
 ```bash
 post2all --help
 ```
 
-If it is not installed, use it without a global install:
+Use the package without a global install when needed:
 
 ```bash
 npx @post2all/cli <command>
 ```
 
-The examples below use `post2all`. Substitute `npx @post2all/cli` when needed.
-
-Before performing workspace operations, validate authentication:
+Before workspace operations, validate authentication:
 
 ```bash
 post2all config whoami --json
 ```
 
-Authentication is resolved in this order:
+Credentials are resolved from `--api-key`, `POST2ALL_API_KEY`, or the local config created by `post2all config set-key`. Never print, repeat, log, or commit an API key. Do not ask the user to paste one into chat.
 
-1. The global `--api-key <key>` option.
-2. The `POST2ALL_API_KEY` environment variable.
-3. The local config created by `post2all config set-key <apiKey>`.
+The hosted MCP server uses OAuth instead of API keys.
 
-Never print, log, commit, or repeat an API key. If authentication is missing or expired, direct the user to create a key in Post2All and configure it themselves. Do not ask them to paste a key into chat.
+## Core workflow
 
-## Core Workflow
-
-1. Run `post2all config whoami --json` to verify access.
-2. Run `post2all accounts --json` and use returned account IDs. Never guess IDs.
-3. Check each selected account's `supportedPostTypes` before choosing `text`, `image`, or `video`.
-4. Clarify content, accounts, post type, status, media, and scheduling timezone when they are not safely inferable.
-5. Prefer `--json` for commands whose output will be parsed or used by later commands.
-6. Run the command and report the post ID, resulting status, target accounts, and scheduled time.
-
-Use a draft for review-oriented requests. Use `scheduled` only with an explicit future time. Use `publish_now` only when the user clearly requests immediate publication. Note that omitting `--status` from `post create` publishes immediately.
-
-## Discover Accounts And Posts
-
-List connected accounts:
+1. Verify access.
+2. List accounts and use returned IDs and platform values. Never guess either.
+3. Check `supportedPostTypes` before selecting `text`, `image`, or `video`.
+4. Load publishing options for accounts with dynamic fields.
+5. Build one typed target per destination.
+6. Use a draft unless the user clearly requests scheduling or immediate publication.
+7. Report the post ID, status, target accounts, and scheduled time.
 
 ```bash
 post2all accounts --json
+post2all account publishing-options <accountId> --json
 ```
 
-List posts, optionally filtering by status or type:
+Publishing options provide platform capabilities and dynamic values such as Discord channels and TikTok privacy choices.
 
-```bash
-post2all posts --status scheduled --limit 100 --json
-post2all posts --type image --page 2 --json
+## Target model
+
+Each destination is represented independently:
+
+```json
+{
+  "platform": "discord",
+  "accountId": "acc_discord_123",
+  "settings": {
+    "channelId": "1234567890",
+    "autoCrosspost": true
+  }
+}
 ```
 
-Valid status filters are `draft`, `scheduled`, `published`, `partially_failed`, and `failed`. Valid types are `text`, `image`, and `video`.
+`platform` is a schema discriminator. Settings from another platform are rejected. Multiple accounts on the same platform must be separate target objects.
 
-Fetch one post before changing or deleting it:
+For MCP tools, pass the same structure in the `targets` array. For the CLI, serialize the array into `--targets`.
 
-```bash
-post2all post get <postId> --json
+## Delivery model
+
+Use one of:
+
+```json
+{ "mode": "draft" }
 ```
 
-## Create Posts
+```json
+{ "mode": "now" }
+```
 
-Create a draft:
+```json
+{
+  "mode": "scheduled",
+  "scheduledAt": "2026-07-20T09:00:00+05:30"
+}
+```
+
+CLI equivalents are `--delivery draft`, `--delivery now`, or `--delivery scheduled --scheduled-at <timestamp>`.
+
+Drafts may omit targets and incomplete publishing settings. Immediate and scheduled delivery require complete targets, appropriate media, and all platform-required settings. No CLI delivery flag defaults to a draft.
+
+Always use ISO 8601 scheduled timestamps with `Z` or an explicit UTC offset. Resolve relative times in the user's timezone and never submit a time in the past.
+
+## Create posts
+
+Draft:
 
 ```bash
 post2all post create \
   --type text \
-  --accounts acc_1,acc_2 \
-  --content "Draft content" \
-  --status draft \
-  --json
-```
-
-Schedule a post:
-
-```bash
-post2all post create \
-  --type text \
-  --accounts acc_1,acc_2 \
-  --content "Scheduled content" \
-  --status scheduled \
-  --scheduled-at "2026-06-21T09:00:00+05:30" \
+  --content "Work in progress" \
+  --delivery draft \
   --json
 ```
 
@@ -101,93 +109,121 @@ Publish immediately only when explicitly requested:
 ```bash
 post2all post create \
   --type text \
-  --accounts acc_1 \
-  --content "Publish now" \
-  --status publish_now \
+  --content "New release shipping today 🚀" \
+  --targets '[
+    {
+      "platform": "linkedin",
+      "accountId": "acc_linkedin_123",
+      "settings": {}
+    },
+    {
+      "platform": "threads",
+      "accountId": "acc_threads_123",
+      "settings": {
+        "caption": "Short Threads version",
+        "topicTag": "buildinpublic"
+      }
+    }
+  ]' \
+  --delivery now \
   --json
 ```
 
-### Media
-
-The CLI uploads local files automatically. Pass one or more paths directly; do not perform a separate upload step.
-
-```bash
-post2all post create \
-  --type image \
-  --accounts acc_1 \
-  --content "Photo gallery" \
-  --media ./photo1.jpg ./photo2.png \
-  --status draft \
-  --json
-```
-
-Use `--type video` for video posts. Confirm files exist before executing. Supported image formats are jpg, jpeg, png, gif, webp, and svg; supported video formats are mp4, webm, mov, avi, and mkv.
-
-### Account-Specific Settings
-
-Use `--account-settings` for account-specific captions or fields. Quote JSON with single quotes in shells that support it:
+Schedule:
 
 ```bash
 post2all post create \
   --type text \
-  --accounts acc_twitter,acc_threads \
-  --content "Main caption" \
-  --account-settings '{"acc_threads":{"caption":"Short Threads caption"}}' \
-  --status draft \
+  --content "Scheduled update" \
+  --targets '[{"platform":"linkedin","accountId":"acc_linkedin_123","settings":{}}]' \
+  --delivery scheduled \
+  --scheduled-at "2026-07-20T09:00:00+05:30" \
   --json
 ```
 
-Settings are keyed by social account ID, not platform. Do not invent account setting fields. Keep captions within account limits; use an override when the main caption is too long for one target account.
+## Media
 
-## Manage Posts
-
-Only draft and scheduled posts can be updated. Only supplied fields are changed:
+Upload local files first and pass returned media IDs:
 
 ```bash
-post2all post update <postId> --content "Revised content" --json
-post2all post update <postId> \
-  --status scheduled \
-  --scheduled-at "2026-06-22T10:00:00+05:30" \
+post2all media upload ./photo.jpg --json
+
+post2all post create \
+  --type image \
+  --content "Photo update" \
+  --media-ids media_123 \
+  --targets '[{"platform":"instagram","accountId":"acc_instagram_123","settings":{"altText":"Product dashboard"}}]' \
+  --delivery now \
   --json
 ```
 
-Move a scheduled post back to draft:
+Do not pass local paths directly to post creation.
+
+## Supported settings
+
+- Twitter/X: `caption`, `altText`
+- LinkedIn: `caption`
+- YouTube: `caption`, `title`, `description`, `tags`, `privacyStatus`, `categoryId`, `thumbnail`, `thumbnailTimestamp`
+- Instagram: `caption`, `altText`, `thumbnail`, `thumbnailTimestamp`
+- Facebook: `caption`
+- Pinterest: `caption`, `boardId`, `altText`, `thumbnail`, `thumbnailTimestamp`
+- Threads: `caption`, `altText`, `topicTag`
+- Dribbble: `caption`, `title`, `description`, `tags`, `teamId`, `lowProfile`
+- Bluesky: `caption`, `altText`
+- Telegram: `caption`, `linkUrl`, `linkText`, `disableNotification`, `protectContent`
+- Discord: `caption`, `channelId`, `autoCrosspost`
+- TikTok: `caption`, `title`, `description`, `tiktokPrivacyLevel`, `tiktokDisableComment`, `tiktokDisableDuet`, `tiktokDisableStitch`
+
+Do not invent settings. Use shared content by default and target-level `caption` only for account-specific copy.
+
+## Read and manage posts
+
+```bash
+post2all posts --status scheduled --limit 100 --json
+post2all post get <postId> --json
+```
+
+Valid status filters are `draft`, `scheduled`, `publishing`, `published`, `partially_failed`, and `failed`.
+
+Only draft and scheduled posts can be updated. Supplied `targets` and `mediaIds` arrays replace existing arrays:
+
+```bash
+post2all post update <postId> \
+  --content "Revised content" \
+  --targets '[{"platform":"linkedin","accountId":"acc_linkedin_123","settings":{}}]' \
+  --delivery scheduled \
+  --scheduled-at "2026-07-21T10:00:00+05:30" \
+  --json
+```
+
+Publish an existing draft:
+
+```bash
+post2all post update <postId> --delivery now --json
+```
+
+Cancel a schedule while preserving the post:
 
 ```bash
 post2all post cancel <postId> --json
 ```
 
-Toggle between draft and scheduled:
+Permanently delete only after checking the post and confirming intent:
 
 ```bash
-post2all post status <postId> --status draft --json
-post2all post status <postId> --status scheduled --json
-```
-
-Permanently delete a post and cancel any pending schedule:
-
-```bash
+post2all post get <postId> --json
 post2all post delete <postId> --json
 ```
 
-Before a destructive delete, fetch the post and obtain confirmation unless the user already clearly identified the post and asked for deletion. Prefer `cancel` when the intent is only to stop publication while preserving the content.
+## Errors and recovery
 
-## Scheduling Rules
+- `INVALID_API_KEY` / `EXPIRED_API_KEY`: configure a valid key.
+- `INVALID_ACCOUNTS`: refresh account IDs and verify each target's platform.
+- `INVALID_REQUEST`: inspect field-level issue paths such as `targets.0.settings.channelId`.
+- `MEDIA_NOT_FOUND`: upload again or use valid media IDs from the same workspace.
+- `UNSUPPORTED_MEDIA`: check post type, media type, size, and platform capabilities.
+- `POST_NOT_FOUND`: refresh the post list.
+- `RATE_LIMITED`: wait before retrying.
+- `PLAN_UPGRADE_REQUIRED` / `FORBIDDEN`: explain the plan or permission restriction instead of retrying.
 
-- Always pass scheduled times as ISO 8601 with `Z` or an explicit UTC offset.
-- Interpret a local time in the user's known timezone. Ask for the timezone if it cannot be determined reliably.
-- Confirm the resolved timestamp when relative language such as "tomorrow morning" is ambiguous.
-- Do not schedule a post in the past.
-- `--scheduled-at` is required when creating or updating a post to `scheduled`.
-
-## Errors And Recovery
-
-- `INVALID_API_KEY` or `EXPIRED_API_KEY`: have the user configure a valid key, then retry `config whoami`.
-- `INVALID_ACCOUNTS`: refresh IDs with `accounts --json`.
-- `POST_NOT_FOUND`: refresh with `posts --json` and verify the ID.
-- `UNSUPPORTED_MEDIA`: check the file type and selected accounts' supported post types.
-- `RATE_LIMITED`: wait before retrying; do not loop aggressively.
-- `PLAN_UPGRADE_REQUIRED` or `FORBIDDEN`: explain the account or plan restriction instead of repeatedly retrying.
-- `INVALID_REQUEST`: inspect `post2all <command> --help` and correct the supplied flags.
-
-Use `--base-url <url>` only when the user explicitly works with a non-default Post2All deployment.
+Prefer `--json` whenever output will be parsed or used in a later command.
