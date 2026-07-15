@@ -34,19 +34,23 @@ The hosted MCP server uses OAuth instead of API keys.
 ## Core workflow
 
 1. Verify access.
-2. List accounts and use returned IDs and platform values. Never guess either.
-3. Check `supportedPostTypes` before selecting `text`, `image`, or `video`.
-4. Load publishing options for accounts with dynamic fields.
-5. Build one typed target per destination.
-6. Use a draft unless the user clearly requests scheduling or immediate publication.
-7. Report the post ID, status, target accounts, and scheduled time.
+2. Call `publishing_constraints` once and use its latest platform capabilities and account-specific text limits.
+3. List accounts and use returned IDs and platform values. Never guess either.
+4. Check `supportedPostTypes` before selecting `text`, `image`, or `video`.
+5. Load per-account publishing options only for dynamic destinations or creator settings.
+6. Build one typed target per destination.
+7. Use a draft unless the user clearly requests scheduling or immediate publication.
+8. Report the post ID, status, target accounts, and scheduled time.
 
 ```bash
+post2all constraints --json
 post2all accounts --json
 post2all account publishing-options <accountId> --json
 ```
 
 Publishing options provide platform capabilities and dynamic values such as Discord channels and TikTok privacy choices.
+
+Treat `publishing_constraints` as authoritative. Do not rely on memorized limits. Use per-account publishing options only for dynamic choices such as Discord channels and TikTok privacy settings. The API currently requires one post type and does not accept mixed image/video media.
 
 ## Target model
 
@@ -172,7 +176,9 @@ Do not pass local paths directly to post creation.
 - Bluesky: `caption`, `altText`
 - Telegram: `caption`, `linkUrl`, `linkText`, `disableNotification`, `protectContent`
 - Discord: `caption`, `channelId`, `autoCrosspost`
-- TikTok: `caption`, `title`, `description`, `tiktokPrivacyLevel`, `tiktokDisableComment`, `tiktokDisableDuet`, `tiktokDisableStitch`
+- TikTok: `caption`, `title`, `description`, `tiktokContentPostingMethod`, `tiktokPrivacyLevel`, `tiktokDisableComment`, `tiktokDisableDuet`, `tiktokDisableStitch`
+
+For TikTok, `tiktokContentPostingMethod` is `DIRECT_POST` or `UPLOAD`. Direct Post requires a creator-supported `tiktokPrivacyLevel`. Upload sends media to the creator's TikTok inbox so they can finish and publish it in the TikTok app; privacy and interaction settings are not required for that mode.
 
 Do not invent settings. Use shared content by default and target-level `caption` only for account-specific copy.
 
