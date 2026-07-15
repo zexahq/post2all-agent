@@ -34,23 +34,23 @@ The hosted MCP server uses OAuth instead of API keys.
 ## Core workflow
 
 1. Verify access.
-2. Call `publishing_constraints` once and use its latest platform capabilities and account-specific text limits.
-3. List accounts and use returned IDs and platform values. Never guess either.
-4. Check `supportedPostTypes` before selecting `text`, `image`, or `video`.
-5. Load per-account publishing options only for dynamic destinations or creator settings.
+2. List accounts and use returned IDs and platform values. Never guess either.
+3. Call `publishing_schema` once with all selected account IDs and use its latest capabilities, fixed field values, and account-specific limits.
+4. If that response includes discovery keys, call `publishing_options` once with the relevant selected account IDs. Do not call it for fixed fields.
+5. Check `supportedPostTypes` before selecting `text`, `image`, or `video`.
 6. Build one typed target per destination.
 7. Use a draft unless the user clearly requests scheduling or immediate publication.
 8. Report the post ID, status, target accounts, and scheduled time.
 
 ```bash
-post2all constraints --json
 post2all accounts --json
-post2all account publishing-options <accountId> --json
+post2all constraints <accountId...> --json
+post2all account publishing-options <accountId...> --json
 ```
 
 Publishing options provide platform capabilities and dynamic values such as Discord channels and TikTok privacy choices.
 
-Treat `publishing_constraints` as authoritative. Do not rely on memorized limits. Use per-account publishing options only for dynamic choices such as Discord channels and TikTok privacy settings. The API currently requires one post type and does not accept mixed image/video media.
+Treat `publishing_schema` as authoritative. Do not rely on memorized limits or enum values. It contains public publishing metadata only; use `publishing_options` for dynamic choices such as Discord channels and TikTok creator restrictions. The API currently requires one post type and does not accept mixed image/video media.
 
 ## Target model
 

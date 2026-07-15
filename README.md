@@ -19,7 +19,7 @@ https://mcp.post2all.com/api/mcp
 
 Actual capabilities depend on the connected accounts, platform restrictions, workspace permissions, and Post2All plan.
 
-Agents should call `publishing_constraints` once before composing and treat it as the source of truth for validation. It includes every platform capability and connected-account text overrides such as X subscription limits. Post creation still requires a single `text`, `image`, or `video` type; mixed image/video posts are not supported yet.
+Agents should list accounts, then call `publishing_schema` once with all selected account IDs before composing. It returns only public publishing capabilities, fixed choices, and account overrides such as X subscription limits. Call `publishing_options` only when the schema requests account discovery (for example Discord channels or TikTok creator restrictions). Post creation still requires a single `text`, `image`, or `video` type; mixed image/video posts are not supported yet.
 
 ## Supported clients
 
@@ -111,7 +111,7 @@ Delivery modes are:
 
 ```bash
 post2all config whoami --json
-post2all constraints --json
+post2all constraints <accountId...> --json
 post2all accounts --json
 post2all account publishing-options acc_discord_123 --json
 ```
