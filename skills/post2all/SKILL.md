@@ -38,7 +38,7 @@ The hosted MCP server uses OAuth instead of API keys.
 3. Call `publishing_schema` once with all selected account IDs and use its latest capabilities, fixed field values, and account-specific limits.
 4. If that response includes discovery keys, call `publishing_options` once with the relevant selected account IDs. Do not call it for fixed fields.
 5. Check `supportedPostTypes` before selecting `text`, `image`, or `video`.
-6. Build one typed target per destination.
+6. Build one typed target per destination and call `post_validate` before preview or create.
 7. Use a draft unless the user clearly requests scheduling or immediate publication.
 8. Report the post ID, status, target accounts, and scheduled time.
 

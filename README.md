@@ -21,6 +21,8 @@ Actual capabilities depend on the connected accounts, platform restrictions, wor
 
 Agents should list accounts, then call `publishing_schema` once with all selected account IDs before composing. It returns only public publishing capabilities, fixed choices, and account overrides such as X subscription limits. Call `publishing_options` only when the schema requests account discovery (for example Discord channels or TikTok creator restrictions). Post creation still requires a single `text`, `image`, or `video` type; mixed image/video posts are not supported yet.
 
+On MCP, call the read-only `post_validate` tool after constructing targets and before previewing or creating the post. Preview and validation share the same account, platform, schedule, media-presence, and content checks.
+
 ## Supported clients
 
 This repository includes metadata and shared guidance for:
