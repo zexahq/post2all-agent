@@ -189,7 +189,7 @@ post2all posts --status scheduled --limit 100 --json
 post2all post get <postId> --json
 ```
 
-Valid status filters are `draft`, `scheduled`, `publishing`, `published`, `partially_failed`, and `failed`.
+Valid status filters are `draft`, `scheduled`, `publishing`, `published`, `completed`, `partially_failed`, and `failed`. A `completed` post succeeded but includes at least one upload-only target that still needs user action in the platform app.
 
 Only draft and scheduled posts can be updated. Supplied `targets` and `mediaIds` arrays replace existing arrays:
 
