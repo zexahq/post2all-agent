@@ -37,7 +37,7 @@ The hosted MCP server uses OAuth instead of API keys.
 2. List accounts and use returned IDs and platform values. Never guess either.
 3. Call `publishing_schema` once with all selected account IDs and use its latest capabilities, fixed field values, and account-specific limits.
 4. If that response includes discovery keys, call `publishing_options` once with the relevant selected account IDs. Do not call it for fixed fields.
-5. Check `supportedPostTypes` before selecting `text`, `image`, or `video`.
+5. Attach media as needed (none, images, videos, or a mix when `media.allowMixedMedia` is true). Do not send a fixed post type.
 6. Build one typed target per destination and call `post_validate` before preview or create.
 7. Use a draft unless the user clearly requests scheduling or immediate publication.
 8. Report the post ID, status, target accounts, and scheduled time.
@@ -50,7 +50,7 @@ post2all account publishing-options <accountId...> --json
 
 Publishing options provide platform capabilities and dynamic values such as Discord channels and TikTok privacy choices.
 
-Treat `publishing_schema` as authoritative. Do not rely on memorized limits or enum values. It contains public publishing metadata only; use `publishing_options` for dynamic choices such as Discord channels and TikTok creator restrictions. The API currently requires one post type and does not accept mixed image/video media.
+Treat `publishing_schema` as authoritative. Do not rely on memorized limits or enum values. It contains public publishing metadata only; use `publishing_options` for dynamic choices such as Discord channels and TikTok creator restrictions. Post composition is inferred from attached media (text-only, images, videos, or a mix when a platform sets media.allowMixedMedia). Do not send a fixed post type.
 
 ## Target model
 
@@ -102,7 +102,6 @@ Draft:
 
 ```bash
 post2all post create \
-  --type text \
   --content "Work in progress" \
   --delivery draft \
   --json
@@ -112,7 +111,6 @@ Publish immediately only when explicitly requested:
 
 ```bash
 post2all post create \
-  --type text \
   --content "New release shipping today 🚀" \
   --targets '[
     {
@@ -137,7 +135,6 @@ Schedule:
 
 ```bash
 post2all post create \
-  --type text \
   --content "Scheduled update" \
   --targets '[{"platform":"linkedin","accountId":"acc_linkedin_123","settings":{}}]' \
   --delivery scheduled \
@@ -153,7 +150,6 @@ Upload local files first and pass returned media IDs:
 post2all media upload ./photo.jpg --json
 
 post2all post create \
-  --type image \
   --content "Photo update" \
   --media-ids media_123 \
   --targets '[{"platform":"instagram","accountId":"acc_instagram_123","settings":{"altText":"Product dashboard"}}]' \
@@ -162,6 +158,8 @@ post2all post create \
 ```
 
 Do not pass local paths directly to post creation.
+
+Composition is inferred from attached media. Mixed image+video is only valid for platforms with `media.allowMixedMedia: true` (for example Instagram, Threads, Telegram, Discord).
 
 ## Supported settings
 
@@ -227,7 +225,7 @@ post2all post delete <postId> --json
 - `INVALID_ACCOUNTS`: refresh account IDs and verify each target's platform.
 - `INVALID_REQUEST`: inspect field-level issue paths such as `targets.0.settings.channelId`.
 - `MEDIA_NOT_FOUND`: upload again or use valid media IDs from the same workspace.
-- `UNSUPPORTED_MEDIA`: check post type, media type, size, and platform capabilities.
+- `UNSUPPORTED_MEDIA`: check media type, size, mixed-media rules, and platform capabilities.
 - `POST_NOT_FOUND`: refresh the post list.
 - `RATE_LIMITED`: wait before retrying.
 - `PLAN_UPGRADE_REQUIRED` / `FORBIDDEN`: explain the plan or permission restriction instead of retrying.

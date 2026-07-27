@@ -8,9 +8,9 @@ https://mcp.post2all.com/api/mcp
 
 ## Capabilities
 
-- List connected social accounts and supported post types.
+- List connected social accounts and their publishing capabilities.
 - Inspect draft, scheduled, publishing, published, partially failed, and failed posts.
-- Create text, image, and video posts.
+- Create posts with optional text and media (images, videos, or mixed when the platform allows).
 - Save drafts, schedule future delivery, or publish immediately.
 - Apply settings independently to every destination account.
 - Discover dynamic publishing options such as Discord channels and TikTok privacy choices.
@@ -19,7 +19,7 @@ https://mcp.post2all.com/api/mcp
 
 Actual capabilities depend on the connected accounts, platform restrictions, workspace permissions, and Post2All plan.
 
-Agents should list accounts, then call `publishing_schema` once with all selected account IDs before composing. It returns only public publishing capabilities, fixed choices, and account overrides such as X subscription limits. Call `publishing_options` only when the schema requests account discovery (for example Discord channels or TikTok creator restrictions). Post creation still requires a single `text`, `image`, or `video` type; mixed image/video posts are not supported yet.
+Agents should list accounts, then call `publishing_schema` once with all selected account IDs before composing. It returns only public publishing capabilities, fixed choices, and account overrides such as X subscription limits. Call `publishing_options` only when the schema requests account discovery (for example Discord channels or TikTok creator restrictions). Do not send a fixed post type. Composition is inferred from attached media; mixed image/video is allowed only when a platform sets `media.allowMixedMedia`.
 
 On MCP, call the read-only `post_validate` tool after constructing targets and before previewing or creating the post. Preview and validation share the same account, platform, schedule, media-presence, and content checks.
 
@@ -122,7 +122,6 @@ Create a draft:
 
 ```bash
 post2all post create \
-  --type text \
   --content "Work in progress" \
   --delivery draft \
   --json
@@ -132,7 +131,6 @@ Publish immediately:
 
 ```bash
 post2all post create \
-  --type text \
   --content "New release shipping today 🚀" \
   --targets '[{"platform":"linkedin","accountId":"acc_linkedin_123","settings":{}}]' \
   --delivery now \
@@ -143,7 +141,6 @@ Schedule:
 
 ```bash
 post2all post create \
-  --type text \
   --content "Scheduled update" \
   --targets '[{"platform":"linkedin","accountId":"acc_linkedin_123","settings":{}}]' \
   --delivery scheduled \
