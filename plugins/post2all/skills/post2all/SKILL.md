@@ -39,8 +39,9 @@ The hosted MCP server uses OAuth instead of API keys.
 4. If that response includes discovery keys, call `publishing_options` once with the relevant selected account IDs. Do not call it for fixed fields.
 5. Attach media as needed (none, images, videos, or a mix when `media.allowMixedMedia` is true). Do not send a fixed post type.
 6. Build one typed target per destination and call `post_validate` before preview or create.
-7. Use a draft unless the user clearly requests scheduling or immediate publication.
-8. Report the post ID, status, target accounts, and scheduled time.
+7. Preview the content and obtain explicit confirmation before scheduling or immediate publication, especially for TikTok.
+8. Use a draft unless the user clearly requests scheduling or immediate publication.
+9. Report the post ID, status, target accounts, and scheduled time.
 
 ```bash
 post2all accounts --json
@@ -48,7 +49,7 @@ post2all constraints <accountId...> --json
 post2all account publishing-options <accountId...> --json
 ```
 
-Publishing options provide platform capabilities and dynamic values such as Discord channels and TikTok privacy choices.
+Publishing options provide platform capabilities and dynamic values such as Discord channels and TikTok creator information, including privacy choices, interaction restrictions, and video-duration limits.
 
 Treat `publishing_schema` as authoritative. Do not rely on memorized limits or enum values. It contains public publishing metadata only; use `publishing_options` for dynamic choices such as Discord channels and TikTok creator restrictions. Post composition is inferred from attached media (text-only, images, videos, or a mix when a platform sets media.allowMixedMedia). Do not send a fixed post type.
 
@@ -174,9 +175,11 @@ Composition is inferred from attached media. Mixed image+video is only valid for
 - Bluesky: `caption`, `altText`
 - Telegram: `caption`, `linkUrl`, `linkText`, `disableNotification`, `protectContent`
 - Discord: `caption`, `channelId`, `autoCrosspost`
-- TikTok: `caption`, `title`, `description`, `tiktokContentPostingMethod`, `tiktokPrivacyLevel`, `tiktokDisableComment`, `tiktokDisableDuet`, `tiktokDisableStitch`
+- TikTok: `caption`, `title`, `description`, `tiktokContentPostingMethod`, `tiktokPrivacyLevel`, `tiktokDisableComment`, `tiktokDisableDuet`, `tiktokDisableStitch`, `tiktokCommercialContentToggle`, `tiktokBrandOrganicToggle`, `tiktokBrandContentToggle`
 
-For TikTok, `tiktokContentPostingMethod` is `DIRECT_POST` or `UPLOAD`. Direct Post requires a creator-supported `tiktokPrivacyLevel`. Upload sends media to the creator's TikTok inbox so they can finish and publish it in the TikTok app; privacy and interaction settings are not required for that mode.
+For TikTok, `tiktokContentPostingMethod` is `DIRECT_POST` or `UPLOAD`. Direct Post requires manually selecting a creator-supported `tiktokPrivacyLevel`; never default it. Interaction settings are opt-in: the `tiktokDisable*` fields should remain enabled (`true`/omitted by the UI's default) unless the user explicitly allows the interaction, and Duet/Stitch apply only to video posts. Upload sends media to the creator's TikTok inbox so they can finish and publish it in the TikTok app; privacy, interaction, and commercial settings are not required for that mode.
+
+When TikTok is selected, use the fresh `creatorInfo` response before constructing the target. Show the creator identity and preview the media, caption/title/description, privacy, interactions, and commercial disclosure. If commercial disclosure is enabled, select at least one of `tiktokBrandOrganicToggle` or `tiktokBrandContentToggle`; branded content cannot use `SELF_ONLY`. Before scheduling or publishing, obtain the user's explicit consent to TikTok's Music Usage Confirmation, and also its Branded Content Policy when branded content is selected.
 
 Do not invent settings. Use shared content by default and target-level `caption` only for account-specific copy.
 
