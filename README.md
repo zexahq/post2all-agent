@@ -14,7 +14,7 @@ https://mcp.post2all.com/api/mcp
 - Save drafts, schedule future delivery, or publish immediately.
 - Apply settings independently to every destination account.
 - Discover dynamic publishing options such as Discord channels and TikTok privacy choices.
-- Update or cancel draft and scheduled posts.
+- Update draft, scheduled, failed, and partially failed posts while retained media is available; cancel scheduled posts.
 - Delete posts when explicitly requested.
 
 Actual capabilities depend on the connected accounts, platform restrictions, workspace permissions, and Post2All plan.
