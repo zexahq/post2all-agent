@@ -48,7 +48,7 @@ The hosted MCP server uses OAuth 2.1. The CLI uses a Post2All API key configured
 ## Claude Code setup
 
 ```bash
-claude plugin marketplace add https://github.com/zexahq/post2all-agent
+claude plugin marketplace add zexahq/post2all-agent
 claude plugin install post2all@post2all-plugins
 ```
 
