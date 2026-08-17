@@ -1,6 +1,6 @@
 # Post2All Agent Plugin
 
-Post2All Agent Plugin teaches AI coding assistants to create, schedule, inspect, update, cancel, and delete social posts through Post2All. It includes shared agent guidance plus the hosted Model Context Protocol connection for supported clients.
+Post2All Agent Plugin teaches AI coding assistants to create, schedule, inspect, update, cancel, and manage posts through Post2All. It includes shared agent guidance plus the hosted Model Context Protocol connection for supported clients.
 
 ```text
 https://mcp.post2all.com/api/mcp
@@ -15,7 +15,7 @@ https://mcp.post2all.com/api/mcp
 - Apply settings independently to every destination account.
 - Discover dynamic publishing options such as Discord channels and TikTok privacy choices.
 - Update draft, scheduled, failed, and partially failed posts while retained media is available; cancel scheduled posts.
-- Delete posts when explicitly requested.
+- Remove posts from Post2All when explicitly requested. This does not delete content already published to social platforms.
 
 Actual capabilities depend on the connected accounts, platform restrictions, workspace permissions, and Post2All plan.
 
@@ -167,7 +167,7 @@ post2all post create \
 
 ## Safety
 
-Review immediate publishing, time-sensitive schedules, and destructive deletes before confirming them. Prefer drafts for review workflows. Fetch a post before deleting it unless the user already clearly identified it and requested deletion.
+Review immediate publishing, time-sensitive schedules, and destructive Post2All deletions before confirming them. Prefer drafts for review workflows. Fetch a post before deleting it unless the user already clearly identified it and requested deletion. Deleting the Post2All record does not remove live content that was already published to social platforms.
 
 ## Troubleshooting
 

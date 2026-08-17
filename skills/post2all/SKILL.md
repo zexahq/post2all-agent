@@ -1,6 +1,6 @@
 ---
 name: post2all
-description: Use Post2All to create, schedule, inspect, update, cancel, and delete social posts across connected accounts.
+description: Use Post2All to create, schedule, inspect, update, cancel, and manage Post2All posts across connected accounts.
 ---
 
 # Post2All
@@ -215,12 +215,14 @@ Cancel a schedule while preserving the post:
 post2all post cancel <postId> --json
 ```
 
-Permanently delete only after checking the post and confirming intent:
+Permanently delete from Post2All only after checking the post and confirming intent:
 
 ```bash
 post2all post get <postId> --json
 post2all post delete <postId> --json
 ```
+
+This removes the Post2All record and cancels any pending schedule. Content already published to social platforms remains live there; do not imply that this command removes the live social posts.
 
 ## Errors and recovery
 
