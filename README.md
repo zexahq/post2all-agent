@@ -1,6 +1,6 @@
-# Post2All Agent Plugin
+# post2all Agent Plugin
 
-Post2All Agent Plugin teaches AI coding assistants to create, schedule, inspect, update, cancel, and manage posts through Post2All. It includes shared agent guidance plus the hosted Model Context Protocol connection for supported clients.
+post2all Agent Plugin teaches AI coding assistants to create, schedule, inspect, update, cancel, and manage posts through post2all. It includes shared agent guidance plus the hosted Model Context Protocol connection for supported clients.
 
 ```text
 https://mcp.post2all.com/api/mcp
@@ -15,9 +15,10 @@ https://mcp.post2all.com/api/mcp
 - Apply settings independently to every destination account.
 - Discover dynamic publishing options such as Discord channels and TikTok privacy choices.
 - Update draft, scheduled, failed, and partially failed posts while retained media is available; cancel scheduled posts.
-- Remove posts from Post2All when explicitly requested. This does not delete content already published to social platforms.
+- Inspect `deletion.available` and `deletion.reason` on published targets and remove one confirmed live social post on platforms where deletion is publicly supported.
+- Remove posts from post2all when explicitly requested. This local deletion does not remove content already published to social platforms.
 
-Actual capabilities depend on the connected accounts, platform restrictions, workspace permissions, and Post2All plan.
+Actual capabilities depend on the connected accounts, platform restrictions, workspace permissions, and post2all plan.
 
 Agents should list accounts, then call `publishing_schema` once with all selected account IDs before composing. It returns only public publishing capabilities, fixed choices, and account overrides such as X subscription limits. Call `publishing_options` only when the schema requests account discovery (for example Discord channels or TikTok creator restrictions). Do not send a fixed post type. Composition is inferred from attached media; mixed image/video is allowed only when a platform sets `media.allowMixedMedia`.
 
@@ -38,12 +39,12 @@ The shared MCP configuration lives in `.mcp.json`. Agent guidance is maintained 
 
 You need:
 
-- A Post2All account and workspace.
+- A post2all account and workspace.
 - At least one connected social account for publishing.
-- A supported MCP client or the Post2All CLI.
+- A supported MCP client or the post2all CLI.
 - A browser for the MCP OAuth consent flow.
 
-The hosted MCP server uses OAuth 2.1. The CLI uses a Post2All API key configured locally; agents should never ask users to paste API keys into chat.
+The hosted MCP server uses OAuth 2.1. The CLI uses a post2all API key configured locally; agents should never ask users to paste API keys into chat.
 
 ## Claude Code setup
 
@@ -52,7 +53,7 @@ claude plugin marketplace add zexahq/post2all-agent
 claude plugin install post2all@post2all-plugins
 ```
 
-Complete the browser OAuth flow when Claude first connects to Post2All.
+Complete the browser OAuth flow when Claude first connects to post2all.
 
 ## Codex setup
 
@@ -68,7 +69,7 @@ Manual MCP configuration:
 url = "https://mcp.post2all.com/api/mcp"
 ```
 
-Complete the browser sign-in flow and authorize the Post2All workspace you want the agent to use.
+Complete the browser sign-in flow and authorize the post2all workspace you want the agent to use.
 
 ## Target and delivery model
 
@@ -150,7 +151,7 @@ post2all post create \
 
 ## Example prompts
 
-- “List my connected Post2All accounts.”
+- “List my connected post2all accounts.”
 - “Show the available Discord channels for this account.”
 - “Create a draft LinkedIn post from this changelog.”
 - “Schedule this announcement for tomorrow at 9 AM IST.”
@@ -161,13 +162,13 @@ post2all post create \
 ## Authentication and permissions
 
 - MCP access is scoped to the workspace authorized through OAuth.
-- The agent can only perform actions allowed by the user's Post2All account and plan.
+- The agent can only perform actions allowed by the user's post2all account and plan.
 - Long-lived MCP sessions depend on refresh-token-capable scopes requested by the client.
-- Access can be revoked from Post2All account settings.
+- Access can be revoked from post2all account settings.
 
 ## Safety
 
-Review immediate publishing, time-sensitive schedules, and destructive Post2All deletions before confirming them. Prefer drafts for review workflows. Fetch a post before deleting it unless the user already clearly identified it and requested deletion. Deleting the Post2All record does not remove live content that was already published to social platforms.
+Review immediate publishing, time-sensitive schedules, published deletion, and destructive post2all record deletion before confirming them. Prefer drafts for review workflows. Before deleting a live social post, use `post_get`, require `deletion.available` to be `true`, show the exact account/platform, and obtain explicit confirmation. When unavailable, use `deletion.reason` to explain why. That runtime state already includes public rollout and current account/platform constraints; private rollout platforms stay blocked on public MCP/CLI surfaces. Deleting the post2all record is a separate action and does not remove live social content.
 
 ## Troubleshooting
 
@@ -179,7 +180,7 @@ Review immediate publishing, time-sensitive schedules, and destructive Post2All 
 
 ## Links
 
-- Post2All: https://www.post2all.com
+- post2all: https://www.post2all.com
 - MCP setup: https://www.post2all.com/docs/mcp-server
 - REST API: https://www.post2all.com/docs/api-reference
 - Repository: https://github.com/zexahq/post2all-agent

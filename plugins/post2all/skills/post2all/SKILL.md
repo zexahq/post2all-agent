@@ -1,11 +1,11 @@
 ---
 name: post2all
-description: Use Post2All to create, schedule, inspect, update, cancel, and manage Post2All posts across connected accounts.
+description: Use post2all to create, schedule, inspect, update, cancel, and manage post2all posts across connected accounts.
 ---
 
-# Post2All
+# post2all
 
-Use the `post2all` CLI when shell access is available, or the connected Post2All MCP tools when the client exposes them. Both interfaces use the same target and delivery model.
+Use the `post2all` CLI when shell access is available, or the connected post2all MCP tools when the client exposes them. Both interfaces use the same target and delivery model.
 
 ## Install and authenticate the CLI
 
@@ -215,14 +215,23 @@ Cancel a schedule while preserving the post:
 post2all post cancel <postId> --json
 ```
 
-Permanently delete from Post2All only after checking the post and confirming intent:
+Delete one already-published social copy while keeping the post2all record:
+
+```bash
+post2all post get <postId> --json
+post2all post delete-published <postId> --post-account-id <postAccountId> --json
+```
+
+Use `post get` (or MCP `post_get`) first. Only offer deletion for a target whose `deletion.available` field is `true`, show the exact account/platform, and obtain explicit confirmation. When unavailable, use `deletion.reason` to explain why. On MCP, call `post_delete_published` with that one target ID. The runtime state already includes public rollout, account state, provider IDs, and limits such as Telegram's deletion window, and the server rechecks them during deletion. Private rollout platforms remain unavailable through public agent surfaces.
+
+Permanently delete from post2all only after checking the post and confirming intent:
 
 ```bash
 post2all post get <postId> --json
 post2all post delete <postId> --json
 ```
 
-This removes the Post2All record and cancels any pending schedule. Content already published to social platforms remains live there; do not imply that this command removes the live social posts.
+This removes the post2all record and cancels any pending schedule. Content already published to social platforms remains live there; do not imply that this command removes the live social posts.
 
 ## Errors and recovery
 
