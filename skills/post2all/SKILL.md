@@ -164,7 +164,7 @@ Composition is inferred from attached media. Mixed image+video is only valid for
 
 ## Supported settings
 
-- Twitter/X: `caption`, `altText`
+- Twitter/X: `caption`
 - LinkedIn: `caption`
 - YouTube: `caption`, `title`, `description`, `tags`, `privacyStatus`, `categoryId`, `thumbnail`, `thumbnailTimestamp`
 - Instagram: `caption`, `altText`, `thumbnail`, `thumbnailTimestamp`
