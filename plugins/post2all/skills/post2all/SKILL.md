@@ -152,27 +152,27 @@ post2all media upload ./photo.jpg --json
 
 post2all post create \
   --content "Photo update" \
-  --media-ids media_123 \
-  --targets '[{"platform":"instagram","accountId":"acc_instagram_123","settings":{"altText":"Product dashboard"}}]' \
+  --media '[{"id":"media_123","altText":"Product dashboard with weekly engagement chart"}]' \
+  --targets '[{"platform":"instagram","accountId":"acc_instagram_123","settings":{}}]' \
   --delivery now \
   --json
 ```
 
 Do not pass local paths directly to post creation.
 
-Composition is inferred from attached media. Mixed image+video is only valid for platforms with `media.allowMixedMedia: true` (for example Instagram, Threads, Telegram, Discord).
+Composition is inferred from attached media. Mixed image+video is only valid for platforms with `media.allowMixedMedia: true` (for example Instagram, Threads, Telegram, Discord). When `publishing_schema` exposes `capability.media.altText`, set optional `altText` on each media item and obey its `mediaTypes` and `maxLength`. X intentionally does not expose media alt text. `mediaIds` remains a compatibility input for ID-only media; do not combine it with the preferred per-media shape.
 
 ## Supported settings
 
 - Twitter/X: `caption`
 - LinkedIn: `caption`
 - YouTube: `caption`, `title`, `description`, `tags`, `privacyStatus`, `categoryId`, `thumbnail`, `thumbnailTimestamp`
-- Instagram: `caption`, `altText`, `thumbnail`, `thumbnailTimestamp`
+- Instagram: `caption`, `thumbnail`, `thumbnailTimestamp`
 - Facebook: `caption`
-- Pinterest: `caption`, `boardId`, `altText`, `thumbnail`, `thumbnailTimestamp`
-- Threads: `caption`, `altText`, `topicTag`
+- Pinterest: `caption`, `boardId`, `thumbnail`, `thumbnailTimestamp`
+- Threads: `caption`, `topicTag`
 - Dribbble: `caption`, `title`, `description`, `tags`, `teamId`, `lowProfile`
-- Bluesky: `caption`, `altText`
+- Bluesky: `caption`
 - Telegram: `caption`, `linkUrl`, `linkText`, `disableNotification`, `protectContent`
 - Discord: `caption`, `channelId`, `autoCrosspost`
 - TikTok: `caption`, `title`, `description`, `tiktokContentPostingMethod`, `tiktokAutoAddMusic`, `tiktokPrivacyLevel`, `tiktokDisableComment`, `tiktokDisableDuet`, `tiktokDisableStitch`, `tiktokCommercialContentToggle`, `tiktokBrandOrganicToggle`, `tiktokBrandContentToggle`
@@ -181,7 +181,7 @@ For TikTok, `tiktokContentPostingMethod` is `DIRECT_POST` or `UPLOAD`. Direct Po
 
 When TikTok is selected, use the fresh `creatorInfo` response before constructing the target. Show the creator identity and preview the media, caption/title/description, privacy, interactions, and commercial disclosure. If commercial disclosure is enabled, select at least one of `tiktokBrandOrganicToggle` or `tiktokBrandContentToggle`; branded content cannot use `SELF_ONLY`. Before scheduling or publishing, obtain the user's explicit consent to TikTok's Music Usage Confirmation, and also its Branded Content Policy when branded content is selected.
 
-Do not invent settings. Use shared content by default and target-level `caption` only for account-specific copy.
+Do not invent settings. Use shared content by default and target-level `caption` only for account-specific copy. Alt text is media metadata, not a target setting.
 
 ## Read and manage posts
 
@@ -192,7 +192,7 @@ post2all post get <postId> --json
 
 Valid status filters are `draft`, `scheduled`, `publishing`, `published`, `completed`, `partially_failed`, and `failed`. A `completed` post succeeded but includes at least one upload-only target that still needs user action in the platform app.
 
-Draft, scheduled, failed, and partially failed posts can be updated while retained media is available. Supplied `targets` and `mediaIds` arrays replace existing arrays:
+Draft, scheduled, failed, and partially failed posts can be updated while retained media is available. Supplied `targets` and preferred `media` arrays replace existing arrays. `mediaIds` remains compatibility-only for ID-only attachments:
 
 ```bash
 post2all post update <postId> \
