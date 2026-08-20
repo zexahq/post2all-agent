@@ -3,7 +3,7 @@
 post2all Agent Plugin teaches AI coding assistants to create, schedule, inspect, update, cancel, and manage posts through post2all. It includes shared agent guidance plus the hosted Model Context Protocol connection for supported clients.
 
 ```text
-https://mcp.post2all.com/api/mcp
+https://mcp.post2all.com/mcp
 ```
 
 ## Capabilities
@@ -22,7 +22,7 @@ Actual capabilities depend on the connected accounts, platform restrictions, wor
 
 Agents should list accounts, then call `publishing_schema` once with all selected account IDs before composing. It returns only public publishing capabilities, fixed choices, and account overrides such as X subscription limits. Call `publishing_options` only when the schema requests account discovery (for example Discord channels or TikTok creator restrictions). Do not send a fixed post type. Composition is inferred from attached media; mixed image/video is allowed only when a platform sets `media.allowMixedMedia`.
 
-On MCP, call the read-only `post_validate` tool after constructing targets and before previewing or creating the post. Preview and validation share the same account, platform, schedule, media-presence, and content checks.
+On MCP, call the read-only `post_validate` tool after constructing targets and before creating the post.
 
 ## Supported clients
 
@@ -66,7 +66,7 @@ Manual MCP configuration:
 
 ```toml
 [mcp_servers.post2all]
-url = "https://mcp.post2all.com/api/mcp"
+url = "https://mcp.post2all.com/mcp"
 ```
 
 Complete the browser sign-in flow and authorize the post2all workspace you want the agent to use.
@@ -181,7 +181,8 @@ Review immediate publishing, time-sensitive schedules, published deletion, and d
 ## Links
 
 - post2all: https://www.post2all.com
-- MCP setup: https://www.post2all.com/docs/mcp-server
+- MCP setup: https://www.post2all.com/docs/mcp
 - REST API: https://www.post2all.com/docs/api-reference
+- Privacy policy: https://www.post2all.com/privacy-policy
 - Repository: https://github.com/zexahq/post2all-agent
 - Issues: https://github.com/zexahq/post2all-agent/issues

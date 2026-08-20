@@ -38,8 +38,8 @@ The hosted MCP server uses OAuth instead of API keys.
 3. Call `publishing_schema` once with all selected account IDs and use its latest capabilities, fixed field values, and account-specific limits.
 4. If that response includes discovery keys, call `publishing_options` once with the relevant selected account IDs. Do not call it for fixed fields.
 5. Attach media as needed (none, images, videos, or a mix when `media.allowMixedMedia` is true). Do not send a fixed post type.
-6. Build one typed target per destination and call `post_validate` before preview or create.
-7. Preview the content and obtain explicit confirmation before scheduling or immediate publication, especially for TikTok.
+6. Build one typed target per destination and call `post_validate` before create.
+7. Review the content and obtain explicit confirmation before scheduling or immediate publication, especially for TikTok.
 8. Use a draft unless the user clearly requests scheduling or immediate publication.
 9. Report the post ID, status, target accounts, and scheduled time.
 
@@ -179,7 +179,7 @@ Composition is inferred from attached media. Mixed image+video is only valid for
 
 For TikTok, `tiktokContentPostingMethod` is `DIRECT_POST` or `UPLOAD`. Direct Post requires manually selecting a creator-supported `tiktokPrivacyLevel`; never default it. For photo posts only, `tiktokAutoAddMusic` is an optional Direct Post setting and defaults to `false`; set it to `true` only when the user explicitly wants TikTok to add recommended music. TikTok's API does not allow selecting a specific sound. Interaction settings are opt-in: the `tiktokDisable*` fields should remain enabled (`true`/omitted by the UI's default) unless the user explicitly allows the interaction, and Duet/Stitch apply only to video posts. Upload sends media to the creator's TikTok inbox so they can finish and publish it in the TikTok app; privacy, interaction, commercial, and auto-add-music settings are not required for that mode.
 
-When TikTok is selected, use the fresh `creatorInfo` response before constructing the target. Show the creator identity and preview the media, caption/title/description, privacy, interactions, and commercial disclosure. If commercial disclosure is enabled, select at least one of `tiktokBrandOrganicToggle` or `tiktokBrandContentToggle`; branded content cannot use `SELF_ONLY`. Before scheduling or publishing, obtain the user's explicit consent to TikTok's Music Usage Confirmation, and also its Branded Content Policy when branded content is selected.
+When TikTok is selected, use the fresh `creatorInfo` response before constructing the target. Show the creator identity and review the media, caption/title/description, privacy, interactions, and commercial disclosure. If commercial disclosure is enabled, select at least one of `tiktokBrandOrganicToggle` or `tiktokBrandContentToggle`; branded content cannot use `SELF_ONLY`. Before scheduling or publishing, obtain the user's explicit consent to TikTok's Music Usage Confirmation, and also its Branded Content Policy when branded content is selected.
 
 Do not invent settings. Use shared content by default and target-level `caption` only for account-specific copy. Alt text is media metadata, not a target setting.
 
