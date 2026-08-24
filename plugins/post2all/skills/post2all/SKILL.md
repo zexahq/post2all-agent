@@ -49,7 +49,7 @@ post2all constraints <accountId...> --json
 post2all account publishing-options <accountId...> --json
 ```
 
-Publishing options provide platform capabilities and dynamic values such as Discord channels and TikTok creator information, including privacy choices, interaction restrictions, and video-duration limits.
+Publishing options provide platform capabilities and dynamic values such as Pinterest boards, Discord channels, and TikTok creator information, including privacy choices, interaction restrictions, and video-duration limits.
 
 Treat `publishing_schema` as authoritative. Do not rely on memorized limits or enum values. It contains public publishing metadata only; use `publishing_options` for dynamic choices such as Discord channels and TikTok creator restrictions. Post composition is inferred from attached media (text-only, images, videos, or a mix when a platform sets media.allowMixedMedia). Do not send a fixed post type.
 
@@ -169,7 +169,7 @@ Composition is inferred from attached media. Mixed image+video is only valid for
 - YouTube: `caption`, `title`, `description`, `tags`, `privacyStatus`, `categoryId`, `thumbnail`, `thumbnailTimestamp`
 - Instagram: `caption`, `thumbnail`, `thumbnailTimestamp`
 - Facebook: `caption`
-- Pinterest: `caption`, `boardId`, `thumbnail`, `thumbnailTimestamp`
+- Pinterest: `caption`, `boardId`, `thumbnail`, `thumbnailTimestamp`; choose `boardId` from the returned `boards` options
 - Threads: `caption`, `topicTag`
 - Dribbble: `caption`, `title`, `description`, `tags`, `teamId`, `lowProfile`
 - Bluesky: `caption`
