@@ -171,7 +171,7 @@ Composition is inferred from attached media. Mixed image+video is only valid for
 - YouTube: `caption`, `title`, `description`, `tags`, `privacyStatus`, `categoryId`, `thumbnail`, `thumbnailTimestamp`
 - Instagram: `caption`, `thumbnail`, `thumbnailTimestamp`
 - Facebook: `caption`
-- Pinterest: `caption`, `boardId`, `thumbnail`, `thumbnailTimestamp`; choose `boardId` from the returned `boards` options
+- Pinterest: `caption`, `title`, `linkUrl`, `boardId`, `aiDisclosure`, `thumbnail`, `thumbnailTimestamp`; choose `boardId` from the returned `boards` options. Set `aiDisclosure: true` when the Pin was modified by AI.
 - Threads: `caption`, `topicTag`
 - Dribbble: `caption`, `title`, `description`, `tags`, `teamId`, `lowProfile`
 - Bluesky: `caption`
