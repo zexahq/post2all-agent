@@ -33,6 +33,8 @@ For publishing boundaries and approval rules, read `references/safety.md`.
 
 ## Before using post2all
 
+A post2all account/workspace and at least one connected social account are required for real publishing. Available capabilities depend on the connected platforms, workspace permissions, and post2all plan.
+
 Check that the CLI is available:
 
 ```bash
@@ -139,7 +141,7 @@ CLI equivalents:
 --delivery scheduled --scheduled-at <timestamp>
 ```
 
-No delivery flag should be treated as a draft workflow.
+If no CLI delivery flag is provided, post2all creates a draft.
 
 Always use a timezone-aware ISO 8601 timestamp with `Z` or an explicit UTC offset. Resolve phrases such as "tomorrow morning" using the user's timezone before scheduling.
 
@@ -303,6 +305,12 @@ Cancellation preserves the post2all record while removing the pending schedule.
 Deletion is destructive. Inspect the post and confirm the exact target before deleting anything.
 
 For supported live social deletion, inspect the post and use the current `deletion.available` / `deletion.reason` state for the specific published target. Only offer live deletion when the server reports it as available.
+
+```bash
+post2all post delete-published <postId> \
+  --post-account-id <postAccountId> \
+  --json
+```
 
 Removing the post2all record is separate:
 

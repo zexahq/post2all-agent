@@ -178,6 +178,7 @@ Composition is inferred from attached media. Mixed image+video is only valid for
 - Telegram: `caption`, `linkUrl`, `linkText`, `disableNotification`, `protectContent`
 - Discord: `caption`, `channelId`, `autoCrosspost`
 - TikTok: `caption`, `title`, `tiktokContentPostingMethod`, `tiktokAutoAddMusic`, `tiktokPrivacyLevel`, `tiktokDisableComment`, `tiktokDisableDuet`, `tiktokDisableStitch`, `tiktokCommercialContentToggle`, `tiktokBrandOrganicToggle`, `tiktokBrandContentToggle`
+- Wircle: no platform-specific target settings; use shared text/media and the capabilities returned by `publishing_schema`
 
 For TikTok, `tiktokContentPostingMethod` is `DIRECT_POST` or `UPLOAD`. Direct Post requires manually selecting a creator-supported `tiktokPrivacyLevel`; never default it. For photo posts only, `tiktokAutoAddMusic` is an optional Direct Post setting and defaults to `false`; set it to `true` only when the user explicitly wants TikTok to add recommended music. TikTok's API does not allow selecting a specific sound. Interaction settings are opt-in: the `tiktokDisable*` fields should remain enabled (`true`/omitted by the UI's default) unless the user explicitly allows the interaction, and Duet/Stitch apply only to video posts. Upload sends media to the creator's TikTok inbox so they can finish and publish it in the TikTok app; privacy, interaction, commercial, and auto-add-music settings are not required for that mode.
 
