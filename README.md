@@ -11,6 +11,7 @@ https://mcp.post2all.com/mcp
 - List connected social accounts and their publishing capabilities.
 - Inspect draft, scheduled, publishing, published, partially failed, and failed posts.
 - Create posts with optional text and media (images, videos, or mixed when the platform allows).
+- Accept PNG input across platforms; Instagram and TikTok automatically convert PNG images to JPEG when publishing, while other platforms retain PNG transparency.
 - Save drafts, schedule future delivery, or publish immediately.
 - Apply settings independently to every destination account.
 - Discover dynamic publishing options such as Discord channels and TikTok privacy choices.
@@ -21,6 +22,8 @@ https://mcp.post2all.com/mcp
 Actual capabilities depend on the connected accounts, platform restrictions, workspace permissions, and post2all plan.
 
 Agents should list accounts, then call `publishing_schema` once with all selected account IDs before composing. It returns only public publishing capabilities, fixed choices, and account overrides such as X subscription limits. Call `publishing_options` only when the schema requests account discovery (for example Discord channels or TikTok creator restrictions). Do not send a fixed post type. Composition is inferred from attached media; mixed image/video is allowed only when a platform sets `media.allowMixedMedia`.
+
+When a selected capability includes `media.convertPngToJpeg: true`, PNG conversion is handled automatically at publish time and needs no extra MCP or API field. If source media or a crop derivative is missing or deleted, only the affected target fails with `MEDIA_UNAVAILABLE` and the message `Media is unavailable.`; other targets continue independently.
 
 On MCP, call the read-only `post_validate` tool after constructing targets and before creating the post.
 
@@ -177,6 +180,7 @@ Review immediate publishing, time-sensitive schedules, published deletion, and d
 - List accounts again when an account ID or platform is rejected.
 - Load account publishing options when a required dynamic setting is missing.
 - Check media type, size, target platform support, and required settings when publishing fails.
+- For `MEDIA_UNAVAILABLE`, restore or re-upload the missing source media or crop derivative before retrying the affected target.
 
 ## Links
 

@@ -164,6 +164,8 @@ Do not pass local paths directly to post creation.
 
 Composition is inferred from attached media. Mixed image+video is only valid for platforms with `media.allowMixedMedia: true` (for example Instagram, Threads, Telegram, Discord). When `publishing_schema` exposes `capability.media.altText`, set optional `altText` on each media item and obey its `mediaTypes` and `maxLength`. X intentionally does not expose media alt text. `mediaIds` remains a compatibility input for ID-only media; do not combine it with the preferred per-media shape.
 
+PNG input is accepted when the selected capability includes `image/png`. Instagram and TikTok advertise `media.convertPngToJpeg: true`; post2all converts PNG images to JPEG only for those destinations while publishing. Other platforms retain PNG and transparency. This is automatic and requires no additional MCP or API input.
+
 ## Supported settings
 
 - Twitter/X: `caption`
@@ -242,6 +244,7 @@ This removes the post2all record and cancels any pending schedule. Content alrea
 - `INVALID_ACCOUNTS`: refresh account IDs and verify each target's platform.
 - `INVALID_REQUEST`: inspect field-level issue paths such as `targets.0.settings.channelId`.
 - `MEDIA_NOT_FOUND`: upload again or use valid media IDs from the same workspace.
+- `MEDIA_UNAVAILABLE`: the source media or a crop derivative is missing or deleted while publishing. The affected account fails with the stable public code `MEDIA_UNAVAILABLE` and message `Media is unavailable.`; other accounts continue independently. Restore or re-upload the media before retrying that target.
 - `UNSUPPORTED_MEDIA`: check media type, size, mixed-media rules, and platform capabilities.
 - `POST_NOT_FOUND`: refresh the post list.
 - `RATE_LIMITED`: wait before retrying.
