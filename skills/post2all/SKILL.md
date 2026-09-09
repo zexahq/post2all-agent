@@ -171,7 +171,7 @@ PNG input is accepted when the selected capability includes `image/png`. Instagr
 - Twitter/X: `caption`
 - LinkedIn: `caption`
 - YouTube: `caption`, `title`, `description`, `tags`, `privacyStatus`, `categoryId`, `thumbnail`, `thumbnailTimestamp`
-- Instagram: `caption`, `thumbnail`, `thumbnailTimestamp`
+- Instagram: `caption`, `thumbnail`, `thumbnailTimestamp`, plus comment-hook settings (`instagramCommentHookEnabled`, `instagramCommentHookMatchMode`, `instagramCommentHookKeywords`, `instagramCommentHookExcludeKeywords`, `instagramCommentHookMatchType`, `instagramCommentHookReplyMessage`, `instagramCommentHookDmEnabled`, `instagramCommentHookPublicReplyEnabled`, `instagramCommentHookPublicReplyMessage`)
 - Facebook: `caption`
 - Pinterest: `caption`, `title`, `linkUrl`, `boardId`, `aiDisclosure`, `thumbnail`, `thumbnailTimestamp`; choose `boardId` from the returned `boards` options. Set `aiDisclosure: true` when the Pin was modified by AI.
 - Threads: `caption`, `topicTag`
@@ -187,6 +187,8 @@ For TikTok, `tiktokContentPostingMethod` is `DIRECT_POST` or `UPLOAD`. Direct Po
 When TikTok is selected, use the fresh `creatorInfo` response before constructing the target. Show the creator identity and review the media, caption/title, privacy, interactions, and commercial disclosure. If commercial disclosure is enabled, select at least one of `tiktokBrandOrganicToggle` or `tiktokBrandContentToggle`; branded content cannot use `SELF_ONLY`. Before scheduling or publishing, obtain the user's explicit consent to TikTok's Music Usage Confirmation, and also its Branded Content Policy when branded content is selected.
 
 Do not invent settings. Use shared content by default and target-level `caption` only for account-specific copy. Alt text is media metadata, not a target setting.
+
+For Instagram comment hooks, set `instagramCommentHookEnabled: true` on the target and at least one of the DM or the public reply: `instagramCommentHookDmEnabled` (default `true`) with `instagramCommentHookReplyMessage`, and/or `instagramCommentHookPublicReplyEnabled: true` with `instagramCommentHookPublicReplyMessage`. Match mode is `any` (every comment) or `keywords` with up to 10 `instagramCommentHookKeywords`; match type is `exact`, `contains`, `full_word`, or `begins_with`. `instagramCommentHookExcludeKeywords` always suppress the reply. Instagram sends at most one private DM per comment, so repeat commenters get nothing further. The connected Instagram account must have granted message permissions; if saving fails with a reconnect message, ask the user to reconnect the account and try again.
 
 ## Read and manage posts
 
