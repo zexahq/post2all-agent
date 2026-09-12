@@ -1,6 +1,6 @@
 # post2all Agent Plugin
 
-post2all Agent Plugin teaches AI coding assistants to create, schedule, inspect, update, cancel, and manage posts through post2all. It includes shared agent guidance plus the hosted Model Context Protocol connection for supported clients.
+post2all Agent Plugin teaches AI coding assistants to create, schedule, inspect, update, cancel, manage, and analyze posts through post2all. It includes shared agent guidance plus the hosted Model Context Protocol connection for supported clients.
 
 ```text
 https://mcp.post2all.com/mcp
@@ -9,6 +9,9 @@ https://mcp.post2all.com/mcp
 ## Capabilities
 
 - List connected social accounts and their publishing capabilities.
+- Read normalized account analytics, time series, and previous-period comparisons for supported platforms.
+- Compare provider-wide post performance, including posts published outside post2all when the provider supports account post discovery.
+- Read analytics independently for each target of a multi-platform post2all post.
 - Inspect draft, scheduled, publishing, published, partially failed, and failed posts.
 - Create posts with optional text and media (images, videos, or mixed when the platform allows).
 - Accept PNG input across platforms; Instagram and TikTok automatically convert PNG images to JPEG when publishing, while other platforms retain PNG transparency.
@@ -20,6 +23,14 @@ https://mcp.post2all.com/mcp
 - Remove posts from post2all when explicitly requested. This local deletion does not remove content already published to social platforms.
 
 Actual capabilities depend on the connected accounts, platform restrictions, workspace permissions, and post2all plan.
+
+## Embedded SaaS account onboarding
+
+post2all also exposes a headless REST/SDK account-connection flow for products that use post2all as their social backend. This is separate from MCP: MCP does not expose account-connect or reconnect tools.
+
+A SaaS backend starts a connection with its workspace API key, sends the end user's browser to the returned social-provider authorization URL, and supplies its own HTTPS callback URL. The user authenticates with the social network, not post2all. post2all completes the provider callback and redirects the browser back to the SaaS with an opaque connection ID/status. The SaaS backend then verifies the result through the authenticated connection-status endpoint.
+
+The end user does not need a post2all account, login, or browser session, and the SaaS API key must never be placed in frontend code. See the [account connection guide](https://www.post2all.com/docs/api-reference/account-connections) and [REST API reference](https://www.post2all.com/docs/api-reference).
 
 Agents should list accounts, then call `publishing_schema` once with all selected account IDs before composing. It returns only public publishing capabilities, fixed choices, and account overrides such as X subscription limits. Call `publishing_options` only when the schema requests account discovery (for example Discord channels or TikTok creator restrictions). Do not send a fixed post type. Composition is inferred from attached media; mixed image/video is allowed only when a platform sets `media.allowMixedMedia`.
 
@@ -120,6 +131,9 @@ post2all config whoami --json
 post2all constraints <accountId...> --json
 post2all accounts --json
 post2all account publishing-options acc_discord_123 --json
+post2all account analytics acc_instagram_123 --json
+post2all account analytics-posts acc_instagram_123 --sort-by views --json
+post2all post analytics post_abc --json
 ```
 
 Create a draft:
@@ -160,6 +174,9 @@ post2all post create \
 - “Schedule this announcement for tomorrow at 9 AM IST.”
 - “Publish to LinkedIn and Threads, but use shorter copy on Threads.”
 - “Show my scheduled posts for this week.”
+- “Show my Instagram account analytics for the last 30 days.”
+- “Which of my recent posts got the most views?”
+- “Show the analytics for each platform target on this post.”
 - “Cancel the scheduled launch post.”
 
 ## Authentication and permissions

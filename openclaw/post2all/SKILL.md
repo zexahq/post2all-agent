@@ -63,6 +63,8 @@ The hosted post2all MCP server is an alternative connection method for OpenClaw 
 https://mcp.post2all.com/mcp
 ```
 
+For **embedded SaaS social-account onboarding**, use the public REST API or official SDK instead of MCP. A SaaS backend starts `POST /api/v1/accounts/connect/:platform`, sends the end user's browser to the returned provider authorization URL, and verifies the final `connectionId` from its backend after post2all redirects the browser back to the SaaS. The end user does not need a post2all account or post2all login. Keep the post2all API key server-side. See `https://www.post2all.com/docs/api-reference/account-connections`.
+
 ## Core publishing workflow
 
 Follow this sequence for reliable publishing work:

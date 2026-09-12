@@ -1,11 +1,11 @@
 ---
 name: post2all
-description: Use post2all to create, schedule, inspect, update, cancel, and manage post2all posts across connected accounts.
+description: Use post2all to create, schedule, inspect, update, cancel, manage, and analyze social posts across connected accounts.
 ---
 
 # post2all
 
-Use the `post2all` CLI when shell access is available, or the connected post2all MCP tools when the client exposes them. Both interfaces use the same target and delivery model.
+Use the `post2all` CLI when shell access is available, or the connected post2all MCP tools when the client exposes them. Both interfaces use the same target and delivery model and expose normalized account/post analytics.
 
 ## Install and authenticate the CLI
 
@@ -30,6 +30,24 @@ post2all config whoami --json
 Credentials are resolved from `--api-key`, `POST2ALL_API_KEY`, or the local config created by `post2all config set-key`. Never print, repeat, log, or commit an API key. Do not ask the user to paste one into chat.
 
 The hosted MCP server uses OAuth instead of API keys.
+
+## Embedded SaaS account connections
+
+If the user is building post2all into their own SaaS, use the public REST API or official SDK for social-account onboarding. Do **not** claim MCP exposes account-connect/reconnect tools.
+
+The headless flow is:
+
+1. The SaaS backend authenticates to post2all with its workspace API key.
+2. It calls `POST /api/v1/accounts/connect/:platform` with its own HTTPS `redirectUrl`.
+3. post2all returns an opaque `connectionId` and, for OAuth platforms, an `authorizationUrl`.
+4. The end user's browser opens the provider authorization URL. The end user does not need a post2all account, login, or browser session.
+5. The provider returns to post2all, which validates one-time server-side state and stores the provider credentials.
+6. post2all redirects the browser back to the SaaS with `post2all_connection_id` and `post2all_status` only.
+7. The SaaS backend verifies the authoritative result with `GET /api/v1/accounts/connections/:connectionId` using its API key.
+
+Keep the post2all API key on the SaaS backend. Never put it in frontend JavaScript or ask an end user to provide it. Reconnect through `POST /api/v1/accounts/:id/reconnect`; post2all requires the newly authorized provider identity to match the existing account. Disconnect through `DELETE /api/v1/accounts/:id`.
+
+Reference: `https://www.post2all.com/docs/api-reference/account-connections`.
 
 ## Core workflow
 
@@ -210,6 +228,13 @@ post2all post update <postId> \
   --json
 ```
 
+Partially failed posts are retried without a target list. Successful accounts are immutable; retry only attempts targets whose current delivery status is failed. Expired-token accounts remain visible for reconnection from Accounts, while plan-disabled accounts are excluded.
+
+Use:
+
+    post2all post retry <postId> --json
+    post2all post retry <postId> --scheduled-at "2026-07-21T10:00:00+05:30" --json
+
 Publish an existing draft:
 
 ```bash
@@ -240,10 +265,48 @@ post2all post delete <postId> --json
 
 This removes the post2all record and cancels any pending schedule. Content already published to social platforms remains live there; do not imply that this command removes the live social posts.
 
+## Analytics
+
+Use analytics tools only after identifying the exact connected account or post. Never guess account IDs, post IDs, metric names, or unavailable values.
+
+For MCP:
+
+- `analytics_account` returns normalized account metrics, time series, metric definitions, and previous-period comparisons for one connected account.
+- `analytics_account_posts` lists provider-wide post performance. On supported platforms this includes posts published directly on the social platform, not only posts published through post2all.
+- `analytics_post` returns analytics independently for every target of one post2all post, so one unavailable or failing provider does not hide successful analytics from the other targets.
+
+CLI equivalents:
+
+```bash
+post2all account analytics <accountId> --json
+post2all account analytics-posts <accountId> --sort-by views --sort-direction desc --json
+post2all post analytics <postId> --json
+```
+
+Account analytics use the latest 30 inclusive UTC days by default. An explicit range can be at most 90 days:
+
+```bash
+post2all account analytics <accountId> \
+  --start-date 2026-08-01 \
+  --end-date 2026-08-31 \
+  --json
+```
+
+Use `--refresh` (or MCP `refresh: true`) only when the user explicitly asks for fresh/current provider data or cached data is materially unsuitable. Normal requests should use post2all's analytics cache to reduce provider rate-limit pressure and improve latency.
+
+Treat returned metric definitions and capabilities as authoritative. Different platforms expose different metrics. Do not invent a missing metric or convert an unavailable metric into zero.
+
+For `analytics_account_posts`, `origin: "post2all"` means the provider post was matched to a post2all post. `origin: "external"` means the post was discovered from the provider but was not matched to post2all; such items intentionally may not have `postId` or `postAccountId`.
+
+For `analytics_post`, always inspect `analyticsStatus`. Important states include `live`, `no_data`, `not_published`, `account_disconnected`, `account_disabled`, `reconnect_required`, `coming_soon`, `unavailable`, and `provider_error`. An empty `metrics` array does not by itself mean zero engagement.
+
 ## Errors and recovery
 
 - `INVALID_API_KEY` / `EXPIRED_API_KEY`: configure a valid key.
 - `INVALID_ACCOUNTS`: refresh account IDs and verify each target's platform.
+- `ACCOUNT_NOT_FOUND`: refresh connected accounts and retry with a valid account ID.
+- `ANALYTICS_UNAVAILABLE`: explain that analytics are not available for that account/platform instead of inventing data.
+- `ANALYTICS_PROVIDER_ERROR`: report the provider analytics failure and retry only when useful; do not treat it as zero metrics.
 - `INVALID_REQUEST`: inspect field-level issue paths such as `targets.0.settings.channelId`.
 - `MEDIA_NOT_FOUND`: upload again or use valid media IDs from the same workspace.
 - `MEDIA_UNAVAILABLE`: the source media or a crop derivative is missing or deleted while publishing. The affected account fails with the stable public code `MEDIA_UNAVAILABLE` and message `Media is unavailable.`; other accounts continue independently. Restore or re-upload the media before retrying that target.
