@@ -28,6 +28,8 @@ Actual capabilities depend on the connected accounts, platform restrictions, wor
 
 post2all also exposes a headless REST/SDK account-connection flow for products that use post2all as their social backend. This is separate from MCP: MCP does not expose account-connect or reconnect tools.
 
+Business and Agency workspaces can additionally use optional Profiles to organize clients, brands, or SaaS customers inside the same workspace. Business supports 2 profiles and Agency supports up to 10 profiles. Profiles can be managed/filtered from MCP or the CLI; REST/SDK integrations use `x-profile-id` (or `client.forProfile(profileId)`) as an organization context. Profiles are not separate security tenants, and account moves do not break existing post targets. Provider OAuth account connection itself remains a REST/SDK/CLI flow.
+
 A SaaS backend starts a connection with its workspace API key, sends the end user's browser to the returned social-provider authorization URL, and supplies its own HTTPS callback URL. The user authenticates with the social network, not post2all. post2all completes the provider callback and redirects the browser back to the SaaS with an opaque connection ID/status. The SaaS backend then verifies the result through the authenticated connection-status endpoint.
 
 The end user does not need a post2all account, login, or browser session, and the SaaS API key must never be placed in frontend code. See the [account connection guide](https://www.post2all.com/docs/api-reference/account-connections) and [REST API reference](https://www.post2all.com/docs/api-reference).

@@ -65,6 +65,14 @@ https://mcp.post2all.com/mcp
 
 For **embedded SaaS social-account onboarding**, use the public REST API or official SDK instead of MCP. A SaaS backend starts `POST /api/v1/accounts/connect/:platform`, sends the end user's browser to the returned provider authorization URL, and verifies the final `connectionId` from its backend after post2all redirects the browser back to the SaaS. The end user does not need a post2all account or post2all login. Keep the post2all API key server-side. See `https://www.post2all.com/docs/api-reference/account-connections`.
 
+## Profiles and organized work
+
+Business and Agency workspaces can optionally organize clients, brands, or customers into Profiles. Business supports 2 profiles; Agency supports up to 10 profiles; Creator does not include profile operations.
+
+Discover profiles with `post2all profile list --json` or `profiles_list` when MCP is connected. Use the root `--profile-id <profileId>` option for profile-aware CLI account/post work, or pass optional `profileId` to MCP tools that expose it. REST/SDK code can use `client.forProfile(profileId)`, which sends `x-profile-id`. Treat this as an organization/filtering context rather than a separate security credential. Never invent a profile ID.
+
+Use `post2all account profile <accountId> <profileId>` to assign an existing account, or `--clear` to remove its profile assignment. Moving an account does not move historical posts or break existing publishing/retry flows. Deleting a profile preserves its accounts and posts as profile-less resources. For embedded SaaS onboarding, REST/SDK can start a connection from a profile client so the connected account is organized under that profile; MCP still does not perform provider OAuth account connection/reconnection.
+
 ## Core publishing workflow
 
 Follow this sequence for reliable publishing work:

@@ -49,6 +49,18 @@ Keep the post2all API key on the SaaS backend. Never put it in frontend JavaScri
 
 Reference: `https://www.post2all.com/docs/api-reference/account-connections`.
 
+## Profiles and organized work
+
+Profiles are an optional organization layer for clients, brands, or customers inside one post2all workspace. They are available on Business and Agency plans: Business supports 2 named profiles and Agency supports up to 10 profiles. Creator does not include profile operations.
+
+Never invent a profile ID. On CLI, discover profiles with `post2all profile list --json`; on MCP, use `profiles_list`. Manage them with the corresponding `profile_*` tools/commands when the user asks.
+
+For CLI account/post work, put `--profile-id <profileId>` on the root `post2all` command. For MCP tools that accept it, pass the same optional `profileId`. For REST/SDK integrations, the SDK helper `client.forProfile(profileId)` sends the shared `x-profile-id` header automatically. This is an organization/filtering context, not a separate security credential. Omitting profile context means the complete workspace.
+
+Account assignment is an organization-level management action: `post2all account profile <accountId> <profileId>` assigns it; `--clear` removes the profile assignment. Each account belongs to at most one profile at a time. Moving an account changes where it appears in filtered account lists but does not move historical posts or break existing drafts, schedules, retries, analytics, or post targets. Deleting a profile never deletes its accounts or posts; they become profile-less.
+
+For embedded SaaS onboarding, create/map a profile before starting the REST/SDK account connection when the integrator wants a convenient customer organization layer. Keep the workspace API key on the trusted SaaS backend because the workspace remains the authorization boundary. MCP can manage/filter profiles, but social account OAuth/connect/reconnect remains a REST/SDK/CLI flow rather than an MCP connection tool.
+
 ## Core workflow
 
 1. Verify access.
