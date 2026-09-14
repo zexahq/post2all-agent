@@ -177,7 +177,7 @@ post2all post create \
 
 ## Media
 
-Upload local files first and pass returned media IDs:
+For post2all-managed media, upload local files first and pass the returned media IDs:
 
 ```bash
 post2all media upload ./photo.jpg --json
@@ -192,7 +192,25 @@ post2all post create \
 
 Do not pass local paths directly to post creation.
 
-Composition is inferred from attached media. Mixed image+video is only valid for platforms with `media.allowMixedMedia: true` (for example Instagram, Threads, Telegram, Discord). When `publishing_schema` exposes `capability.media.altText`, set optional `altText` on each media item and obey its `mediaTypes` and `maxLength`. X intentionally does not expose media alt text. `mediaIds` remains a compatibility input for ID-only media; do not combine it with the preferred per-media shape.
+If the caller already hosts stable media at a public HTTPS URL, attach it directly without uploading a duplicate:
+
+```bash
+post2all post create \
+  --content "Product demo" \
+  --media '[{"url":"https://cdn.example.com/demo.mp4","altText":"Product demo walkthrough"}]' \
+  --delivery draft \
+  --json
+```
+
+Direct URL media remains caller-managed and must continue serving the intended file until all scheduled publishing attempts and retries complete. If a URL is temporary/signed, but post2all should retain the file, securely import it first:
+
+```bash
+post2all media upload --url "https://temporary.example.com/demo.mp4" --filename demo.mp4 --json
+```
+
+The URL import flow creates a normal post2all-managed media ID; after it succeeds, the original source URL may expire.
+
+Composition is inferred from attached media. Each preferred media item uses either a managed `id` or a caller-managed public HTTPS `url`, never both. Mixed image+video is only valid for platforms with `media.allowMixedMedia: true` (for example Instagram, Threads, Telegram, Discord). When `publishing_schema` exposes `capability.media.altText`, set optional `altText` on each media item and obey its `mediaTypes` and `maxLength`. X intentionally does not expose media alt text. `mediaIds` remains a compatibility input for ID-only media; do not combine it with the preferred per-media shape.
 
 PNG input is accepted when the selected capability includes `image/png`. Instagram and TikTok advertise `media.convertPngToJpeg: true`; post2all converts PNG images to JPEG only for those destinations while publishing. Other platforms retain PNG and transparency. This is automatic and requires no additional MCP or API input.
 
@@ -229,7 +247,7 @@ post2all post get <postId> --json
 
 Valid status filters are `draft`, `scheduled`, `publishing`, `published`, `completed`, `partially_failed`, and `failed`. A `completed` post succeeded but includes at least one upload-only target that still needs user action in the platform app.
 
-Draft, scheduled, failed, and partially failed posts can be updated while retained media is available. Supplied `targets` and preferred `media` arrays replace existing arrays. `mediaIds` remains compatibility-only for ID-only attachments:
+Draft, scheduled, failed, and partially failed posts can be updated while retained media is available. Supplied `targets` and preferred `media` arrays replace existing arrays; replacements may use managed IDs and/or caller-managed public HTTPS URLs. `mediaIds` remains compatibility-only for ID-only attachments:
 
 ```bash
 post2all post update <postId> \
