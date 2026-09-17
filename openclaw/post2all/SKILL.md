@@ -65,9 +65,11 @@ https://mcp.post2all.com/mcp
 
 For **embedded SaaS social-account onboarding**, use the public REST API or official SDK instead of MCP. A SaaS backend starts `POST /api/v1/accounts/connect/:platform`, sends the end user's browser to the returned provider authorization URL, and verifies the final `connectionId` from its backend after post2all redirects the browser back to the SaaS. The end user does not need a post2all account or post2all login. Keep the post2all API key server-side. See `https://www.post2all.com/docs/api-reference/account-connections`.
 
+For production REST/SDK post creation, use a stable `Idempotency-Key`, retain response `X-Request-Id` values, and respect rate-limit metadata and `Retry-After`. Credit integrations can read billing and advisory publishing capacity through the public API/SDK. Credit workspace owners/admins create webhook endpoints and copy the one-time signing secret from the post2all dashboard; management is not a public REST, SDK, CLI, or MCP surface. Verify signed deliveries, deduplicate by event ID, and reconcile against current resources. See `https://www.post2all.com/docs/webhooks`.
+
 ## Profiles and organized work
 
-Business and Agency workspaces can optionally organize clients, brands, or customers into Profiles. Business supports 2 profiles; Agency supports up to 10 profiles; Creator does not include profile operations.
+Business, Agency, and manually onboarded credit workspaces can optionally organize clients, brands, or customers into Profiles. Business supports 2 profiles, Agency supports up to 10, and credit workspaces support up to 10,000; Creator does not include profile operations.
 
 Discover profiles with `post2all profile list --json` or `profiles_list` when MCP is connected. Use the root `--profile-id <profileId>` option for profile-aware CLI account/post work, or pass optional `profileId` to MCP tools that expose it. REST/SDK code can use `client.forProfile(profileId)`, which sends `x-profile-id`. Treat this as an organization/filtering context rather than a separate security credential. Never invent a profile ID.
 

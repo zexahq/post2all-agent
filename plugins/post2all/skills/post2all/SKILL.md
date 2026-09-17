@@ -47,11 +47,15 @@ The headless flow is:
 
 Keep the post2all API key on the SaaS backend. Never put it in frontend JavaScript or ask an end user to provide it. Reconnect through `POST /api/v1/accounts/:id/reconnect`; post2all requires the newly authorized provider identity to match the existing account. Disconnect through `DELETE /api/v1/accounts/:id`.
 
-Reference: `https://www.post2all.com/docs/api-reference/account-connections`.
+For production REST/SDK post creation, use one stable `Idempotency-Key` per logical create and reuse the same key with the exact same body after a timeout. Keep `X-Request-Id` values in application logs and respect rate-limit metadata and `Retry-After`; standard organization keys allow 1,000 requests per rolling 24 hours and credit organization keys allow 100,000. Credit integrations can read prepaid access with `GET /api/v1/billing` / `client.getBilling()` and advisory per-account capacity with `POST /api/v1/publishing-limits` / `client.getPublishingLimits(accountIds)`. post2all still enforces publishing capacity and safely defers affected targets.
+
+Credit workspace owners/admins create webhook endpoints in the post2all **Webhooks** dashboard and receive the signing secret once. Webhook endpoint management is intentionally not a public REST, SDK, CLI, or MCP surface. Integrations can use the SDK's `verifyWebhookSignature()` helper and must deduplicate at-least-once deliveries by event ID before processing. Use resource reads for reconciliation.
+
+References: `https://www.post2all.com/docs/api-reference/account-connections`, `https://www.post2all.com/docs/sdk/quickstart`, and `https://www.post2all.com/docs/webhooks`.
 
 ## Profiles and organized work
 
-Profiles are an optional organization layer for clients, brands, or customers inside one post2all workspace. They are available on Business and Agency plans: Business supports 2 named profiles and Agency supports up to 10 profiles. Creator does not include profile operations.
+Profiles are an optional organization layer for clients, brands, or customers inside one post2all workspace. Business supports 2 named profiles, Agency supports up to 10, and manually onboarded credit workspaces support up to 10,000. Creator does not include profile operations.
 
 Never invent a profile ID. On CLI, discover profiles with `post2all profile list --json`; on MCP, use `profiles_list`. Manage them with the corresponding `profile_*` tools/commands when the user asks.
 
