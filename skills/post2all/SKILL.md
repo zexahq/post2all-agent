@@ -220,21 +220,23 @@ PNG input is accepted when the selected capability includes `image/png`. Instagr
 
 ## Supported settings
 
-- Twitter/X: `caption`
+- Twitter/X: `caption`, `replySettings`, `aiDisclosure`, `paidPartnership`, `communityUrl`
 - LinkedIn: `caption`
-- YouTube: `caption`, `title`, `description`, `tags`, `privacyStatus`, `categoryId`, `thumbnail`, `thumbnailTimestamp`
-- Instagram: `caption`, `thumbnail`, `thumbnailTimestamp`, plus comment-hook settings (`instagramCommentHookEnabled`, `instagramCommentHookMatchMode`, `instagramCommentHookKeywords`, `instagramCommentHookExcludeKeywords`, `instagramCommentHookMatchType`, `instagramCommentHookReplyMessage`, `instagramCommentHookDmEnabled`, `instagramCommentHookPublicReplyEnabled`, `instagramCommentHookPublicReplyMessage`)
-- Facebook: `caption`
+- YouTube: `caption`, `title`, `description`, `tags`, `privacyStatus`, `categoryId`, `thumbnail`, `thumbnailTimestamp`, `madeForKids`, `aiDisclosure`, `embeddable`, `license`, `publicStatsViewable`
+- Instagram: `caption`, `thumbnail`, `thumbnailTimestamp`, `trialReel`, `trialReelGraduationStrategy`, `shareToFeed`, plus comment-hook settings (`instagramCommentHookEnabled`, `instagramCommentHookMatchMode`, `instagramCommentHookKeywords`, `instagramCommentHookExcludeKeywords`, `instagramCommentHookMatchType`, `instagramCommentHookReplyMessage`, `instagramCommentHookDmEnabled`, `instagramCommentHookPublicReplyEnabled`, `instagramCommentHookPublicReplyMessage`)
+- Facebook: `caption`, `linkUrl`
 - Pinterest: `caption`, `title`, `linkUrl`, `boardId`, `aiDisclosure`, `thumbnail`, `thumbnailTimestamp`; choose `boardId` from the returned `boards` options. Set `aiDisclosure: true` when the Pin was modified by AI.
 - Threads: `caption`, `topicTag`
 - Dribbble: `caption`, `title`, `description`, `tags`, `teamId`, `lowProfile`
 - Bluesky: `caption`
 - Telegram: `caption`, `linkUrl`, `linkText`, `disableNotification`, `protectContent`
 - Discord: `caption`, `channelId`, `autoCrosspost`
-- TikTok: `caption`, `title`, `tiktokContentPostingMethod`, `tiktokAutoAddMusic`, `tiktokPrivacyLevel`, `tiktokDisableComment`, `tiktokDisableDuet`, `tiktokDisableStitch`, `tiktokCommercialContentToggle`, `tiktokBrandOrganicToggle`, `tiktokBrandContentToggle`
+- TikTok: `caption`, `title`, `tiktokContentPostingMethod`, `tiktokAutoAddMusic`, `tiktokPrivacyLevel`, `tiktokDisableComment`, `tiktokDisableDuet`, `tiktokDisableStitch`, `tiktokCommercialContentToggle`, `tiktokBrandOrganicToggle`, `tiktokBrandContentToggle`, `aiDisclosure`, `thumbnailTimestamp`
 - Wircle: no platform-specific target settings; use shared text/media and the capabilities returned by `publishing_schema`
 
-For TikTok, `tiktokContentPostingMethod` is `DIRECT_POST` or `UPLOAD`. Direct Post requires manually selecting a creator-supported `tiktokPrivacyLevel`; never default it. For photo posts only, `tiktokAutoAddMusic` is an optional Direct Post setting and defaults to `false`; set it to `true` only when the user explicitly wants TikTok to add recommended music. TikTok's API does not allow selecting a specific sound. Interaction settings are opt-in: the `tiktokDisable*` fields should remain enabled (`true`/omitted by the UI's default) unless the user explicitly allows the interaction, and Duet/Stitch apply only to video posts. Upload sends media to the creator's TikTok inbox so they can finish and publish it in the TikTok app; privacy, interaction, commercial, and auto-add-music settings are not required for that mode.
+For TikTok, `tiktokContentPostingMethod` is `DIRECT_POST` or `UPLOAD`. Direct Post requires manually selecting a creator-supported `tiktokPrivacyLevel`; never default it. For photo posts only, `tiktokAutoAddMusic` is an optional Direct Post setting and defaults to `false`; set it to `true` only when the user explicitly wants TikTok to add recommended music. TikTok's API does not allow selecting a specific sound. Interaction settings are opt-in: the `tiktokDisable*` fields should remain enabled (`true`/omitted by the UI's default) unless the user explicitly allows the interaction, and Duet/Stitch apply only to video posts. `aiDisclosure` and `thumbnailTimestamp` (seconds) apply only to Direct Post videos. Upload sends media to the creator's TikTok inbox so they can finish and publish it in the TikTok app; privacy, interaction, commercial, AI disclosure, cover-frame, and auto-add-music settings are not applied in that mode.
+
+An Instagram Trial Reel requires exactly one video. Set `trialReel: true`, then use `trialReelGraduationStrategy: "MANUAL"` or `"SS_PERFORMANCE"`; `shareToFeed` controls whether the Reel also appears in the feed. For X Communities, `communityUrl` must use `https://x.com/i/communities/<numeric-id>`.
 
 When TikTok is selected, use the fresh `creatorInfo` response before constructing the target. Show the creator identity and review the media, caption/title, privacy, interactions, and commercial disclosure. If commercial disclosure is enabled, select at least one of `tiktokBrandOrganicToggle` or `tiktokBrandContentToggle`; branded content cannot use `SELF_ONLY`. Before scheduling or publishing, obtain the user's explicit consent to TikTok's Music Usage Confirmation, and also its Branded Content Policy when branded content is selected.
 
