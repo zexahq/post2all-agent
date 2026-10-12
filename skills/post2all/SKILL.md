@@ -348,7 +348,11 @@ For `analytics_post`, always inspect `analyticsStatus`. Important states include
 - `MEDIA_UNAVAILABLE`: the source media or a crop derivative is missing or deleted while publishing. The affected account fails with the stable public code `MEDIA_UNAVAILABLE` and message `Media is unavailable.`; other accounts continue independently. Restore or re-upload the media before retrying that target.
 - `UNSUPPORTED_MEDIA`: check media type, size, mixed-media rules, and platform capabilities.
 - `POST_NOT_FOUND`: refresh the post list.
-- `RATE_LIMITED`: wait before retrying.
-- `PLAN_UPGRADE_REQUIRED` / `FORBIDDEN`: explain the plan or permission restriction instead of retrying.
+- `RATE_LIMITED`: wait at least `Retry-After` seconds before retrying. The limit is a rolling 24-hour request quota (1,000 for standard keys), so never poll on a short timer, such as listing scheduled posts every few minutes; read `RateLimit-Remaining` and check state on demand instead. Reminders about scheduled posts belong in the user's own calendar or alarm, not in API polling.
+- `PLAN_UPGRADE_REQUIRED` / `FORBIDDEN`: explain the plan or permission restriction instead of retrying. Free trials may create at most 50 posts in total (drafts included); at that limit, `PLAN_UPGRADE_REQUIRED` carries `reason: "trial_post_creation_limit"` and an upgrade link. Share the link and stop.
 
 Prefer `--json` whenever output will be parsed or used in a later command.
+
+### Optional first comment
+
+First comments are currently private on every platform and available only for global-admin dashboard testing. Public REST, MCP, SDK, and CLI clients cannot set `firstComment` or `firstCommentDelaySeconds`. Do not offer this functionality through public clients until the publishing schema exposes it.
