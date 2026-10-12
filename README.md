@@ -64,6 +64,10 @@ You need:
 
 The hosted MCP server uses OAuth 2.1. The CLI uses a post2all API key configured locally; agents should never ask users to paste API keys into chat.
 
+## Claude setup
+
+Install post2all from the [Claude plugin directory](https://claude.ai/customize/plugins/yours/id/25de8fa7-a45a-4792-a8e4-b5d57489e0fd%40anthropic-plugin-directory) in one click. Complete the browser OAuth flow when Claude first connects to post2all.
+
 ## Claude Code setup
 
 ```bash
