@@ -18,7 +18,7 @@ post2all --help
 Use the package without a global install when needed:
 
 ```bash
-npx @post2all/cli <command>
+npx @post2all/cli@0 <command>
 ```
 
 Before workspace operations, validate authentication:
