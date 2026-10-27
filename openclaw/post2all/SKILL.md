@@ -49,10 +49,10 @@ Before workspace operations, validate authentication:
 post2all config whoami --json
 ```
 
-Credentials can come from `POST2ALL_API_KEY` or the local configuration created with:
+Credentials can come from `POST2ALL_API_KEY` (preferred) or the local configuration. The user should store a key themselves with `post2all config set-key`, which prompts for the key or reads it from stdin so it stays out of shell history and the conversation:
 
 ```bash
-post2all config set-key p2a_your_api_key
+post2all config set-key
 ```
 
 Never print, repeat, log, or commit an API key. Do not ask the user to paste an API key into the conversation.

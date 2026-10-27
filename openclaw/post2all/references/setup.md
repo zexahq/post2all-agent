@@ -12,11 +12,13 @@ Verify the CLI:
 post2all --help
 ```
 
-Create an API key in the user's post2all workspace under **Settings → API Keys**, then store it locally:
+Create an API key in the user's post2all workspace under **Settings → API Keys**. Prefer providing it through the `POST2ALL_API_KEY` environment variable, or have the user store it locally by running this themselves; it prompts for the key (or reads it from stdin) so the key stays out of shell history and the conversation:
 
 ```bash
-post2all config set-key p2a_your_api_key
+post2all config set-key
 ```
+
+Do not run `post2all config set-key <literal key>` on the user's behalf.
 
 Do not place the key in prompts, committed files, screenshots, or logs.
 
