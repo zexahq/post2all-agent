@@ -34,7 +34,7 @@ Use when the user gives one thought, launch note, lesson, or opinion.
 Example instruction:
 
 ```text
-Turn this idea into platform-specific drafts for LinkedIn, Threads, Bluesky, Instagram, and Facebook where supported.
+Turn this idea into platform-specific drafts for LinkedIn, Threads, Bluesky, Mastodon, Instagram, and Facebook where supported.
 Keep the point consistent but make each version feel native to the platform.
 Use post2all and keep everything as drafts.
 ```

@@ -63,7 +63,7 @@ The hosted post2all MCP server is an alternative connection method for OpenClaw 
 https://mcp.post2all.com/mcp
 ```
 
-For **embedded SaaS social-account onboarding**, use the public REST API or official SDK instead of MCP. A SaaS backend starts `POST /api/v1/accounts/connect/:platform`, sends the end user's browser to the returned provider authorization URL, and verifies the final `connectionId` from its backend after post2all redirects the browser back to the SaaS. The end user does not need a post2all account or post2all login. Keep the post2all API key server-side. See `https://www.post2all.com/docs/api-reference/account-connections`.
+For **embedded SaaS social-account onboarding**, use the public REST API or official SDK instead of MCP. A SaaS backend starts `POST /api/v1/accounts/connect/:platform`, sends the end user's browser to the returned provider authorization URL, and verifies the final `connectionId` from its backend after post2all redirects the browser back to the SaaS. The end user does not need a post2all account or post2all login. Keep the post2all API key server-side. Mastodon connections also take a `handle` (for example `you@mastodon.social` or `mastodon.social`) so OAuth runs on the user's own server. See `https://www.post2all.com/docs/api-reference/account-connections`.
 
 For production REST/SDK post creation, use a stable `Idempotency-Key`, retain response `X-Request-Id` values, and respect rate-limit metadata and `Retry-After`. Credit integrations can read billing and advisory publishing capacity through the public API/SDK. Credit workspace owners/admins create webhook endpoints and copy the one-time signing secret from the post2all dashboard; management is not a public REST, SDK, CLI, or MCP surface. Verify signed deliveries, deduplicate by event ID, and reconcile against current resources. See `https://www.post2all.com/docs/webhooks`.
 
@@ -247,6 +247,7 @@ Examples of settings post2all may expose include:
 - Instagram thumbnails;
 - Pinterest board, link, title, and AI disclosure controls;
 - Threads topic tags;
+- Mastodon visibility, content warning, and sensitive-media controls (character limits vary by server, so read them from the schema);
 - Discord channels and auto-crosspost;
 - Telegram link and notification controls;
 - TikTok posting method, privacy, interaction, disclosure, and photo-music controls.

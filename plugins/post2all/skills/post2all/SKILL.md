@@ -51,6 +51,8 @@ The headless flow is:
 
 Keep the post2all API key on the SaaS backend. Never put it in frontend JavaScript or ask an end user to provide it. Reconnect through `POST /api/v1/accounts/:id/reconnect`; post2all requires the newly authorized provider identity to match the existing account. Disconnect through `DELETE /api/v1/accounts/:id`.
 
+For Mastodon, also send a `handle` in the connect body, either a full handle such as `you@mastodon.social` or a server such as `mastodon.social`; the returned `authorizationUrl` points at that server, where the end user completes OAuth. Mastodon tokens do not expire, so no periodic reconnect is needed.
+
 For production REST/SDK post creation, use one stable `Idempotency-Key` per logical create and reuse the same key with the exact same body after a timeout. Keep `X-Request-Id` values in application logs and respect rate-limit metadata and `Retry-After`; standard organization keys allow 1,000 requests per rolling 24 hours and credit organization keys allow 100,000. Credit integrations can read prepaid access and current-period X spend with `GET /api/v1/billing` / `client.getBilling()`, exact zero-markup X rates with `GET /api/v1/billing/x-pricing` / `client.getXApiPricing()`, and advisory per-account capacity with `POST /api/v1/publishing-limits` / `client.getPublishingLimits(accountIds)`. Credit X posts debit $0.015 without a URL or $0.20 with a URL; standard subscriptions keep their included X-post allowances. post2all still enforces publishing capacity and safely defers affected targets.
 
 Credit workspace owners/admins create webhook endpoints in the post2all **Webhooks** dashboard and receive the signing secret once. Webhook endpoint management is intentionally not a public REST, SDK, CLI, or MCP surface. Integrations can use the SDK's `verifyWebhookSignature()` helper and must deduplicate at-least-once deliveries by event ID before processing. Use resource reads for reconciliation.
@@ -233,6 +235,7 @@ PNG input is accepted when the selected capability includes `image/png`. Instagr
 - Threads: `caption`, `topicTag`
 - Dribbble: `caption`, `title`, `description`, `tags`, `teamId`, `lowProfile`
 - Bluesky: `caption`
+- Mastodon: `caption`, `mastodonVisibility`, `contentWarning`, `sensitive`
 - Telegram: `caption`, `linkUrl`, `linkText`, `disableNotification`, `protectContent`
 - Discord: `caption`, `channelId`, `autoCrosspost`
 - TikTok: `caption`, `title`, `tiktokContentPostingMethod`, `tiktokAutoAddMusic`, `tiktokPrivacyLevel`, `tiktokDisableComment`, `tiktokDisableDuet`, `tiktokDisableStitch`, `tiktokCommercialContentToggle`, `tiktokBrandOrganicToggle`, `tiktokBrandContentToggle`, `aiDisclosure`, `thumbnailTimestamp`
@@ -241,6 +244,19 @@ PNG input is accepted when the selected capability includes `image/png`. Instagr
 For TikTok, `tiktokContentPostingMethod` is `DIRECT_POST` or `UPLOAD`. Direct Post requires manually selecting a creator-supported `tiktokPrivacyLevel`; never default it. For photo posts only, `tiktokAutoAddMusic` is an optional Direct Post setting and defaults to `false`; set it to `true` only when the user explicitly wants TikTok to add recommended music. TikTok's API does not allow selecting a specific sound. Interaction settings are opt-in: the `tiktokDisable*` fields should remain enabled (`true`/omitted by the UI's default) unless the user explicitly allows the interaction, and Duet/Stitch apply only to video posts. `aiDisclosure` and `thumbnailTimestamp` (seconds) apply only to Direct Post videos. Upload sends media to the creator's TikTok inbox so they can finish and publish it in the TikTok app; privacy, interaction, commercial, AI disclosure, cover-frame, and auto-add-music settings are not applied in that mode.
 
 An Instagram Trial Reel requires exactly one video. Set `trialReel: true`, then use `trialReelGraduationStrategy: "MANUAL"` or `"SS_PERFORMANCE"`; `shareToFeed` controls whether the Reel also appears in the feed. For X Communities, `communityUrl` must use `https://x.com/i/communities/<numeric-id>`.
+
+Mastodon's character limit is set per server: read `capability.text.maxLength` from `publishing_schema` for the selected account instead of assuming 500. Links count as 23 characters regardless of length, and `contentWarning` counts toward the same limit. `mastodonVisibility` is `public` (default), `unlisted` (quiet public), or `private` (followers only). `sensitive: true` blurs attached media and only applies with media. Mastodon allows text, up to 4 images, or 1 video, never mixed. Its fields are all fixed, so do not call `publishing_options` for Mastodon accounts.
+
+```json
+{
+  "platform": "mastodon",
+  "accountId": "acc_mastodon_123",
+  "settings": {
+    "mastodonVisibility": "unlisted",
+    "contentWarning": "Release notes"
+  }
+}
+```
 
 When TikTok is selected, use the fresh `creatorInfo` response before constructing the target. Show the creator identity and review the media, caption/title, privacy, interactions, and commercial disclosure. If commercial disclosure is enabled, select at least one of `tiktokBrandOrganicToggle` or `tiktokBrandContentToggle`; branded content cannot use `SELF_ONLY`. Before scheduling or publishing, obtain the user's explicit consent to TikTok's Music Usage Confirmation, and also its Branded Content Policy when branded content is selected.
 
