@@ -89,11 +89,11 @@ post2all constraints <accountId...> --json
 post2all account publishing-options <accountId...> --json
 ```
 
-Publishing options provide platform capabilities and dynamic values such as Pinterest boards, Discord channels, and TikTok creator information, including privacy choices, interaction restrictions, and video-duration limits.
+Publishing options provide platform capabilities and dynamic values such as Pinterest boards, Discord and Slack channels, and TikTok creator information, including privacy choices, interaction restrictions, and video-duration limits.
 
 For Pinterest image and video targets, `boardId` is required when publishing or scheduling. Choose it from the account's returned `boards` options; do not guess or omit it.
 
-Treat `publishing_schema` as authoritative. Do not rely on memorized limits or enum values. It contains public publishing metadata only; use `publishing_options` for dynamic choices such as Discord channels and TikTok creator restrictions. Post composition is inferred from attached media (text-only, images, videos, or a mix when a platform sets media.allowMixedMedia). Do not send a fixed post type.
+Treat `publishing_schema` as authoritative. Do not rely on memorized limits or enum values. It contains public publishing metadata only; use `publishing_options` for dynamic choices such as Discord or Slack channels and TikTok creator restrictions. Post composition is inferred from attached media (text-only, images, videos, or a mix when a platform sets media.allowMixedMedia). Do not send a fixed post type.
 
 ## Target model
 
@@ -220,7 +220,7 @@ post2all media upload --url "https://temporary.example.com/demo.mp4" --filename 
 
 The URL import flow creates a normal post2all-managed media ID; after it succeeds, the original source URL may expire.
 
-Composition is inferred from attached media. Each preferred media item uses either a managed `id` or a caller-managed public HTTPS `url`, never both. Mixed image+video is only valid for platforms with `media.allowMixedMedia: true` (for example Instagram, Threads, Telegram, Discord). When `publishing_schema` exposes `capability.media.altText`, set optional `altText` on each media item and obey its `mediaTypes` and `maxLength`. X intentionally does not expose media alt text. `mediaIds` remains a compatibility input for ID-only media; do not combine it with the preferred per-media shape.
+Composition is inferred from attached media. Each preferred media item uses either a managed `id` or a caller-managed public HTTPS `url`, never both. Mixed image+video is only valid for platforms with `media.allowMixedMedia: true` (for example Instagram, Threads, Telegram, Discord, Slack). When `publishing_schema` exposes `capability.media.altText`, set optional `altText` on each media item and obey its `mediaTypes` and `maxLength`. X intentionally does not expose media alt text. `mediaIds` remains a compatibility input for ID-only media; do not combine it with the preferred per-media shape.
 
 PNG input is accepted when the selected capability includes `image/png`. Instagram and TikTok advertise `media.convertPngToJpeg: true`; post2all converts PNG images to JPEG only for those destinations while publishing. Other platforms retain PNG and transparency. This is automatic and requires no additional MCP or API input.
 
@@ -238,6 +238,7 @@ PNG input is accepted when the selected capability includes `image/png`. Instagr
 - Mastodon: `caption`, `mastodonVisibility`, `contentWarning`, `sensitive`
 - Telegram: `caption`, `linkUrl`, `linkText`, `disableNotification`, `protectContent`
 - Discord: `caption`, `channelId`, `autoCrosspost`
+- Slack: `caption`, `channelId`, `unfurlLinks`; choose `channelId` from the returned `destinations` options. Public channels post right away; private channels require the post2all app to be invited first. `unfurlLinks` defaults to `true`.
 - TikTok: `caption`, `title`, `tiktokContentPostingMethod`, `tiktokAutoAddMusic`, `tiktokPrivacyLevel`, `tiktokDisableComment`, `tiktokDisableDuet`, `tiktokDisableStitch`, `tiktokCommercialContentToggle`, `tiktokBrandOrganicToggle`, `tiktokBrandContentToggle`, `aiDisclosure`, `thumbnailTimestamp`
 - Wircle: no platform-specific target settings; use shared text/media and the capabilities returned by `publishing_schema`
 
