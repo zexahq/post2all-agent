@@ -1,0 +1,25 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.zexahq/post2all",
+  "title": "post2all",
+  "description": "Schedule, publish, and analyze social posts on 15 platforms including X, LinkedIn, and Instagram.",
+  "version": "1.0.0",
+  "websiteUrl": "https://www.post2all.com/docs/mcp",
+  "repository": {
+    "url": "https://github.com/zexahq/post2all-agent",
+    "source": "github"
+  },
+  "icons": [
+    {
+      "src": "https://www.post2all.com/logo.png",
+      "mimeType": "image/png",
+      "sizes": ["180x180"]
+    }
+  ],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.post2all.com/mcp"
+    }
+  ]
+}

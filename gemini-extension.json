@@ -1,0 +1,10 @@
+{
+  "name": "post2all",
+  "version": "0.1.0",
+  "description": "Create, schedule, publish, and analyze social posts on 15 platforms through the post2all MCP server.",
+  "mcpServers": {
+    "post2all": {
+      "httpUrl": "https://mcp.post2all.com/mcp"
+    }
+  }
+}

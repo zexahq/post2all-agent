@@ -1,0 +1,17 @@
+{
+  "name": "post2all",
+  "displayName": "post2all",
+  "version": "0.1.0",
+  "description": "Create, schedule, publish, and analyze social posts on X, LinkedIn, Instagram, YouTube, TikTok, and 10 more platforms from Cursor through the post2all MCP server.",
+  "author": {
+    "name": "post2all",
+    "email": "bhavik@post2all.com"
+  },
+  "homepage": "https://www.post2all.com/docs/mcp",
+  "repository": "https://github.com/zexahq/post2all-agent",
+  "license": "MIT",
+  "keywords": ["post2all", "mcp", "social-media", "publishing", "scheduler", "marketing"],
+  "logo": "assets/logo.svg",
+  "skills": "./skills/",
+  "mcpServers": "./mcp.json"
+}

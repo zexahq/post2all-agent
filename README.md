@@ -48,10 +48,12 @@ This repository includes metadata and shared guidance for:
 
 - Claude Code
 - OpenAI Codex
+- Cursor
+- Gemini CLI
 - MCP-compatible clients that support a remote HTTP MCP server
 - Coding agents with shell access to the `@post2all/cli` package
 
-The shared MCP configuration lives in `.mcp.json`. Agent guidance is maintained in `skills/post2all/SKILL.md` and mirrored into the packaged plugin directory.
+The shared MCP configuration lives in `.mcp.json` (Claude and Codex) and `mcp.json` (Cursor). `server.json` describes the server for the official MCP Registry. Agent guidance is maintained in `skills/post2all/SKILL.md` and mirrored into the packaged plugin directory.
 
 ## Before you start
 
@@ -92,6 +94,28 @@ url = "https://mcp.post2all.com/mcp"
 ```
 
 Complete the browser sign-in flow and authorize the post2all workspace you want the agent to use.
+
+## Cursor setup
+
+Install post2all from the Cursor Marketplace, or add the server manually in `~/.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "post2all": { "url": "https://mcp.post2all.com/mcp" }
+  }
+}
+```
+
+Complete the browser OAuth flow when Cursor first connects to post2all.
+
+## Gemini CLI setup
+
+```bash
+gemini extensions install https://github.com/zexahq/post2all-agent
+```
+
+Then run `/mcp auth post2all` inside Gemini CLI to complete the browser OAuth flow.
 
 ## Target and delivery model
 
