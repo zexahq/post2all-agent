@@ -7,6 +7,8 @@ description: Use post2all to create, schedule, inspect, update, cancel, manage, 
 
 Use the `post2all` CLI when shell access is available, or the connected post2all MCP tools when the client exposes them. Both interfaces use the same target and delivery model and expose normalized account/post analytics.
 
+MCP tools are grouped by entity with an `action` argument: `post_read` (`list`, `get`), `post_write` (`create`, `update`, `retry`, `cancel`, `delete`, `delete_published`), `profile_read`, `profile_write` (`create`, `update`, `delete`, `set_account`), `analytics_read` (`account`, `account_posts`, `post`), `comment_automation_read`, and `comment_automation_write`, plus the standalone `accounts_list`, `publishing_schema`, `publishing_options`, `post_validate`, and media upload tools. `*_read` tools never change state; every `*_write` action does. Older per-operation names such as `post_create`, `posts_list`, or `analytics_account` still work but are no longer listed; prefer the entity tools whenever the client shows them.
+
 ## Install and authenticate the CLI
 
 Check availability:
@@ -65,7 +67,7 @@ References: `https://www.post2all.com/docs/api-reference/account-connections`, `
 
 Profiles are an optional organization layer for clients, brands, or customers inside one post2all workspace. Business supports 2 named profiles, Agency supports up to 10, and manually onboarded credit workspaces support up to 10,000. Creator does not include profile operations.
 
-Never invent a profile ID. On CLI, discover profiles with `post2all profile list --json`; on MCP, use `profiles_list`. Manage them with the corresponding `profile_*` tools/commands when the user asks.
+Never invent a profile ID. On CLI, discover profiles with `post2all profile list --json`; on MCP, use `profile_read` with `action: "list"`. Manage them with `profile_write` (`create`, `update`, `delete`, `set_account`) or the matching CLI commands when the user asks.
 
 For CLI account/post work, put `--profile-id <profileId>` on the root `post2all` command. For MCP tools that accept it, pass the same optional `profileId`. For REST/SDK integrations, the SDK helper `client.forProfile(profileId)` sends the shared `x-profile-id` header automatically. This is an organization/filtering context, not a separate security credential. Omitting profile context means the complete workspace.
 
@@ -80,8 +82,8 @@ For embedded SaaS onboarding, create/map a profile before starting the REST/SDK 
 3. Call `publishing_schema` once with all selected account IDs and use its latest capabilities, fixed field values, and account-specific limits.
 4. If that response includes discovery keys or lookups, call `publishing_options` once with the relevant selected account IDs. For the `reelAudio` lookup, also send `reelAudioSearch` (optional `query`; none returns trending audio). Do not call it for fixed fields.
 5. Attach media as needed (none, images, videos, or a mix when `media.allowMixedMedia` is true). Do not send a fixed post type.
-6. Build one typed target per destination and call `post_validate` before create.
-7. Review the content and obtain explicit confirmation before scheduling or immediate publication, especially for TikTok. The same applies to `post update --delivery now`, `post retry`, and `post cancel` (MCP `post_update` with `now` delivery, `post_retry`, and `post_cancel`).
+6. Build one typed target per destination and call `post_validate` before `post_write` with `action: "create"` (CLI: `post create`).
+7. Review the content and obtain explicit confirmation before scheduling or immediate publication, especially for TikTok. The same applies to `post update --delivery now`, `post retry`, and `post cancel` (MCP `post_write` with `action: "update"` and `now` delivery, `action: "retry"`, and `action: "cancel"`).
 8. Use a draft unless the user clearly requests scheduling or immediate publication.
 9. Report the post ID, status, target accounts, and scheduled time.
 
@@ -224,7 +226,7 @@ curl -X PUT -H 'Content-Type: video/mp4' -H 'Content-Length: 18874368' \
   --data-binary @'./launch.mp4' '<uploadUrl>'
 ```
 
-Then call `media_upload_confirm` with `{ "mediaId": "<mediaId>" }`. It verifies the stored file matches the declared type and size and returns the confirmed `mediaId` and `publicUrl`. Only a confirmed media ID works in `post_validate` and `post_create`; an unconfirmed one is rejected with an instruction to confirm it. If confirmation reports a mismatch or the URL expired, run `media_upload_create` again. Unconfirmed uploads are deleted after 24 hours.
+Then call `media_upload_confirm` with `{ "mediaId": "<mediaId>" }`. It verifies the stored file matches the declared type and size and returns the confirmed `mediaId` and `publicUrl`. Only a confirmed media ID works in `post_validate` and `post_write`; an unconfirmed one is rejected with an instruction to confirm it. If confirmation reports a mismatch or the URL expired, run `media_upload_create` again. Unconfirmed uploads are deleted after 24 hours.
 
 If the caller already hosts stable media at a public HTTPS URL, attach it directly without uploading a duplicate:
 
@@ -295,16 +297,16 @@ For Instagram comment hooks, set `instagramCommentHookEnabled: true` on the targ
 
 ## Auto DM on an existing Instagram post
 
-The comment-hook settings above add an auto DM while composing a new post. To add one to a feed post, carousel, or Reel that is already live, including posts not published through post2all, use comment automations: the MCP `comment_automation` tool or `post2all automation` in the CLI.
+The comment-hook settings above add an auto DM while composing a new post. To add one to a feed post, carousel, or Reel that is already live, including posts not published through post2all, use comment automations: the MCP `comment_automation_read` and `comment_automation_write` tools or `post2all automation` in the CLI.
 
 1. `accounts_list` (CLI: `post2all accounts --json`) and pick the connected Instagram account.
 2. Find the post's `platformPostId`, the id Instagram assigned to it. Never guess it.
-   - Post published through post2all: `posts_list`, then `post_get` (CLI: `post2all post get <postId> --json`), and read the published Instagram target's `platformPostId`.
-   - Any post on the account: `analytics_account_posts` (CLI: `post2all account analytics-posts <accountId> --json`) with `startDate`/`endDate` at most 90 days apart, paging with `cursor`; step back to earlier 90-day windows if the post is older. Each row has `platformPostId` and `platformPostUrl`. In the CLI, `--post-url` does this lookup for you.
+   - Post published through post2all: `post_read` with `action: "list"`, then `action: "get"` (CLI: `post2all post get <postId> --json`), and read the published Instagram target's `platformPostId`.
+   - Any post on the account: `analytics_read` with `action: "account_posts"` (CLI: `post2all account analytics-posts <accountId> --json`) with `startDate`/`endDate` at most 90 days apart, paging with `cursor`; step back to earlier 90-day windows if the post is older. Each row has `platformPostId` and `platformPostUrl`. In the CLI, `--post-url` does this lookup for you.
 3. `publishing_schema` for the account. Continue only when `capability.commentAutomation.available` is true; read the `instagramCommentHook*` limits and enum values from `capability.fields`.
 4. Show the user the post and the rule, and get confirmation.
-5. Create: `comment_automation` with `{ "action": "create", "accountId", "platformPostId", "settings" }`. `settings` takes only the `instagramCommentHook*` fields (`MatchMode`, `Keywords`, `ExcludeKeywords`, `MatchType`, `ReplyMessage`, `DmEnabled`, `PublicReplyEnabled`, `PublicReplyMessage`), not `instagramCommentHookEnabled`.
-6. Confirm with `{ "action": "get", "id" }`: `status` should be `on`. Report any `warnings`.
+5. Create: `comment_automation_write` with `{ "action": "create", "accountId", "platformPostId", "settings" }`. `settings` takes only the `instagramCommentHook*` fields (`MatchMode`, `Keywords`, `ExcludeKeywords`, `MatchType`, `ReplyMessage`, `DmEnabled`, `PublicReplyEnabled`, `PublicReplyMessage`), not `instagramCommentHookEnabled`.
+6. Confirm with `comment_automation_read` and `{ "action": "get", "id" }`: `status` should be `on`. Report any `warnings`.
 
 ```bash
 post2all automation create --account <accountId> --post-id <platformPostId> \
@@ -367,7 +369,7 @@ post2all post get <postId> --json
 post2all post delete-published <postId> --post-account-id <postAccountId> --json
 ```
 
-Use `post get` (or MCP `post_get`) first. Only offer deletion for a target whose `deletion.available` field is `true`, show the exact account/platform, and obtain explicit confirmation. When unavailable, use `deletion.reason` to explain why. On MCP, call `post_delete_published` with that one target ID. The runtime state already includes public rollout, account state, provider IDs, and limits such as Telegram's deletion window, and the server rechecks them during deletion. Private rollout platforms remain unavailable through public agent surfaces.
+Use `post get` (or MCP `post_read` with `action: "get"`) first. Only offer deletion for a target whose `deletion.available` field is `true`, show the exact account/platform, and obtain explicit confirmation. When unavailable, use `deletion.reason` to explain why. On MCP, call `post_write` with `action: "delete_published"` and that one target ID. The runtime state already includes public rollout, account state, provider IDs, and limits such as Telegram's deletion window, and the server rechecks them during deletion. Private rollout platforms remain unavailable through public agent surfaces.
 
 Permanently delete from post2all only after checking the post and confirming intent:
 
@@ -384,9 +386,9 @@ Use analytics tools only after identifying the exact connected account or post. 
 
 For MCP:
 
-- `analytics_account` returns normalized account metrics, time series, metric definitions, and previous-period comparisons for one connected account.
-- `analytics_account_posts` lists provider-wide post performance. On supported platforms this includes posts published directly on the social platform, not only posts published through post2all.
-- `analytics_post` returns analytics independently for every target of one post2all post, so one unavailable or failing provider does not hide successful analytics from the other targets.
+- `analytics_read` with `action: "account"` returns normalized account metrics, time series, metric definitions, and previous-period comparisons for one connected account.
+- `analytics_read` with `action: "account_posts"` lists provider-wide post performance. On supported platforms this includes posts published directly on the social platform, not only posts published through post2all.
+- `analytics_read` with `action: "post"` returns analytics independently for every target of one post2all post, so one unavailable or failing provider does not hide successful analytics from the other targets. The result is in `analytics`.
 
 CLI equivalents:
 
@@ -409,9 +411,9 @@ Use `--refresh` (or MCP `refresh: true`) only when the user explicitly asks for 
 
 Treat returned metric definitions and capabilities as authoritative. Different platforms expose different metrics. Do not invent a missing metric or convert an unavailable metric into zero.
 
-For `analytics_account_posts`, `origin: "post2all"` means the provider post was matched to a post2all post. `origin: "external"` means the post was discovered from the provider but was not matched to post2all; such items intentionally may not have `postId` or `postAccountId`.
+For `action: "account_posts"`, `origin: "post2all"` means the provider post was matched to a post2all post. `origin: "external"` means the post was discovered from the provider but was not matched to post2all; such items intentionally may not have `postId` or `postAccountId`.
 
-For `analytics_post`, always inspect `analyticsStatus`. Important states include `live`, `no_data`, `not_published`, `account_disconnected`, `account_disabled`, `reconnect_required`, `coming_soon`, `unavailable`, and `provider_error`. An empty `metrics` array does not by itself mean zero engagement.
+For `action: "post"`, always inspect `analyticsStatus`. Important states include `live`, `no_data`, `not_published`, `account_disconnected`, `account_disabled`, `reconnect_required`, `coming_soon`, `unavailable`, and `provider_error`. An empty `metrics` array does not by itself mean zero engagement.
 
 ## Errors and recovery
 
