@@ -204,6 +204,28 @@ post2all post create \
 
 Do not pass local paths directly to post creation.
 
+On MCP, pick the media path by where the file lives:
+
+- Existing post2all media ID: use it directly.
+- Public HTTPS URL or a host-native file attachment: `upload_media` (or reference the URL directly as caller-managed media).
+- Local file and you can run `curl` or another HTTP client: `media_upload_create` → HTTP PUT → `media_upload_confirm`.
+- MCP Apps host with local images and no native file object: `upload_media_widget`.
+
+The direct-upload flow takes three steps. First call `media_upload_create` with the exact MIME type and byte size (for example from `wc -c < ./launch.mp4`):
+
+```json
+{ "filename": "./launch.mp4", "contentType": "video/mp4", "fileSize": 18874368 }
+```
+
+It returns `mediaId`, a presigned `uploadUrl` valid for 10 minutes, the required `headers`, and a ready `curlExample`. Upload the bytes with exactly those headers:
+
+```bash
+curl -X PUT -H 'Content-Type: video/mp4' -H 'Content-Length: 18874368' \
+  --data-binary @'./launch.mp4' '<uploadUrl>'
+```
+
+Then call `media_upload_confirm` with `{ "mediaId": "<mediaId>" }`. It verifies the stored file matches the declared type and size and returns the confirmed `mediaId` and `publicUrl`. Only a confirmed media ID works in `post_validate` and `post_create`; an unconfirmed one is rejected with an instruction to confirm it. If confirmation reports a mismatch or the URL expired, run `media_upload_create` again. Unconfirmed uploads are deleted after 24 hours.
+
 If the caller already hosts stable media at a public HTTPS URL, attach it directly without uploading a duplicate:
 
 ```bash
