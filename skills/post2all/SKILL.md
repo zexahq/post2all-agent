@@ -226,7 +226,7 @@ curl -X PUT -H 'Content-Type: video/mp4' -H 'Content-Length: 18874368' \
   --data-binary @'./launch.mp4' '<uploadUrl>'
 ```
 
-Then call `media_upload_confirm` with `{ "mediaId": "<mediaId>" }`. It verifies the stored file matches the declared type and size and returns the confirmed `mediaId` and `publicUrl`. Only a confirmed media ID works in `post_validate` and `post_write`; an unconfirmed one is rejected with an instruction to confirm it. If confirmation reports a mismatch or the URL expired, run `media_upload_create` again. Unconfirmed uploads are deleted after 24 hours.
+Then call `media_upload_confirm` with `{ "mediaId": "<mediaId>" }`. It verifies the stored file matches the declared type and size and returns the confirmed `mediaId` and `publicUrl`. Attach the upload to posts by its `mediaId`; `publicUrl` is a preview link only, never a post media `url`. Only a confirmed media ID works in `post_validate` and `post_write`; an unconfirmed one is rejected with an instruction to confirm it. If confirmation reports a mismatch or the URL expired, run `media_upload_create` again. Unconfirmed uploads are deleted after 24 hours.
 
 If the caller already hosts stable media at a public HTTPS URL, attach it directly without uploading a duplicate:
 
@@ -246,7 +246,7 @@ post2all media upload --url "https://temporary.example.com/demo.mp4" --filename 
 
 The URL import flow creates a normal post2all-managed media ID; after it succeeds, the original source URL may expire.
 
-Composition is inferred from attached media. Each preferred media item uses either a managed `id` or a caller-managed public HTTPS `url`, never both. Mixed image+video is only valid for platforms with `media.allowMixedMedia: true` (for example Instagram, Threads, Telegram, Discord, Slack). When `publishing_schema` exposes `capability.media.altText`, set optional `altText` on each media item and obey its `mediaTypes` and `maxLength`. X intentionally does not expose media alt text. `mediaIds` remains a compatibility input for ID-only media; do not combine it with the preferred per-media shape.
+Composition is inferred from attached media. Each preferred media item uses either a managed `id` or a caller-managed public HTTPS `url`, never both. Media returned by `upload_media` or `media_upload_confirm` is managed: attach it by `id`, not by its `publicUrl`. Mixed image+video is only valid for platforms with `media.allowMixedMedia: true` (for example Instagram, Threads, Telegram, Discord, Slack). When `publishing_schema` exposes `capability.media.altText`, set optional `altText` on each media item and obey its `mediaTypes` and `maxLength`. X intentionally does not expose media alt text. `mediaIds` remains a compatibility input for ID-only media; do not combine it with the preferred per-media shape.
 
 PNG input is accepted when the selected capability includes `image/png`. Instagram and TikTok advertise `media.convertPngToJpeg: true`; post2all converts PNG images to JPEG only for those destinations while publishing. Other platforms retain PNG and transparency. This is automatic and requires no additional MCP or API input.
 
